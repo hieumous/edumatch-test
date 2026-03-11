@@ -1,0 +1,415 @@
+# Docker Compose for Testing - ONLY Auth Service & Matching Service
+# Comment out all unnecessary services
+version: '3.8'
+
+services:
+  
+  # === AUTH DATABASE (MySQL for Auth Service) ===
+  auth-db:
+    image: mysql:8.0
+    container_name: auth-db-test
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=auth_db
+      - MYSQL_USER=auth_user
+      - MYSQL_PASSWORD=auth_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - auth_test_data:/var/lib/mysql
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command: --default-authentication-plugin=mysql_native_password
+    deploy:
+      resources:
+        limits:
+          memory: 384M # MySQL test instance thường chỉ cần tầm này
+        reservations:
+          memory: 128M
+
+  # === SCHOLARSHIP DATABASE (MySQL for Scholarship Service) ===
+  scholarship-db:
+    image: mysql:8.0
+    container_name: scholarship-db-test
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=scholarship_db
+      - MYSQL_USER=scholarship_user
+      - MYSQL_PASSWORD=scholarship_pass
+    ports:
+      - "3308:3306"
+    volumes:
+      - scholarship_test_data:/var/lib/mysql
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command: --default-authentication-plugin=mysql_native_password
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+        reservations:
+          memory: 128M
+
+  # === AUTH SERVICE (Java - Port 8081) ===
+  auth-service:
+    build:
+      context: ./backend-java/auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service-test
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=mysql
+      - SPRING_DATASOURCE_URL=jdbc:mysql://auth-db:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=auth_user
+      - SPRING_DATASOURCE_PASSWORD=auth_pass
+      - APP_JWT_SECRET=EduMatch_Super_Secret_Key_!@#_DoNotShare_!@#
+      - APP_JWT_EXPIRATION=86400000
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      # Giới hạn JVM Heap để Java không ăn quá limit của Docker
+      - JAVA_OPTS=-Xms256m -Xmx400m
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8081/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 512M # Đủ cho Spring Boot chạy test cơ bản
+        reservations:
+          memory: 256M
+
+  # === MATCHING SERVICE (Python - Port 8000) ===
+  matching-service:
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+    container_name: matching-service-test
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://matching_user:matching_pass@matching-db:5432/matching_db
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - JWT_SECRET=EduMatch_Super_Secret_Key_!@#_DoNotShare_!@#
+      - JWT_ALGORITHM=HS256
+    depends_on:
+      matching-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - test-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/health\")' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 300M # Python nhẹ hơn Java
+        reservations:
+          memory: 128M
+
+  # === MATCHING CONSUMER (RabbitMQ Event Consumer) ===
+  matching-consumer:
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+    container_name: matching-consumer-test
+    environment:
+      - DATABASE_URL=postgresql://matching_user:matching_pass@matching-db:5432/matching_db
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=rpc://
+    depends_on:
+      matching-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - test-network
+    command: python -m app.consumer
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
+
+  # === CELERY WORKER (Process async tasks) ===
+  celery-worker:
+    build:
+      context: ./matching-service
+      dockerfile: Dockerfile
+    container_name: celery-worker-test
+    environment:
+      - DATABASE_URL=postgresql://matching_user:matching_pass@matching-db:5432/matching_db
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=rpc://
+    depends_on:
+      matching-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - test-network
+    command: celery -A app.celery_app worker --loglevel=info
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+        reservations:
+          memory: 128M
+
+  # === MATCHING DATABASE (PostgreSQL for Matching Service) ===
+  matching-db:
+    image: postgres:14-alpine
+    container_name: matching-db-test
+    environment:
+      - POSTGRES_USER=matching_user
+      - POSTGRES_PASSWORD=matching_pass
+      - POSTGRES_DB=matching_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - matching_test_data:/var/lib/postgresql/data
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matching_user -d matching_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # === RABBITMQ (Required for both services) ===
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-test
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # === FRONTEND (Next.js) ===
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend-test
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_GATEWAY=http://localhost:8080
+      - API_GATEWAY=http://api-gateway-test:80
+      - NEXT_PUBLIC_SOCKET_URL=http://localhost:3003
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - test-network
+    depends_on:
+      - api-gateway
+    command: npm run dev
+    deploy:
+      resources:
+        limits:
+          memory: 1G # Frontend dev server cần khá nhiều RAM
+        reservations:
+          memory: 512M
+
+  # === API GATEWAY (Nginx) ===
+  api-gateway:
+    image: nginx:alpine
+    container_name: api-gateway-test
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - test-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  # === SCHOLARSHIP SERVICE (Java - Port 8082) ===
+  scholarship-service:
+    build:
+      context: ./backend-java/scholarship-service
+      dockerfile: Dockerfile
+    container_name: scholarship-service-test
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:mysql://scholarship-db:3306/scholarship_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=scholarship_user
+      - SPRING_DATASOURCE_PASSWORD=scholarship_pass
+      - APP_JWT_SECRET=EduMatch_Super_Secret_Key_!@#_DoNotShare_!@#
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - APP_SERVICES_AUTH-SERVICE_URL=http://auth-service-test:8081
+      # Giới hạn JVM
+      - JAVA_OPTS=-Xms128m -Xmx300m
+    depends_on:
+      scholarship-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8082/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 400M
+        reservations:
+          memory: 200M
+
+  # === CHAT SERVICE (Java - Port 8083) ===
+  chat-service:
+    build:
+      context: ./backend-java/chat-service
+      dockerfile: Dockerfile
+    container_name: chat-service-test
+    ports:
+      - "8083:8083"
+      - "8084:8084"  # WebSocket port
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:mysql://chat-db-test:3306/chat_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpass
+      - APP_JWT_SECRET=EduMatch_Super_Secret_Key_!@#_DoNotShare_!@#
+      - SPRING_RABBITMQ_HOST=rabbitmq-test
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - APP_FIREBASE_SDK_PATH=classpath:firebase-adminsdk-key.json
+      # Giới hạn JVM
+      - JAVA_OPTS=-Xms128m -Xmx300m
+    depends_on:
+      chat-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8083/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 400M
+        reservations:
+          memory: 200M
+
+  # === CHAT DATABASE (MySQL for Chat Service) ===
+  chat-db:
+    image: mysql:8.0
+    container_name: chat-db-test
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=chat_db
+      - MYSQL_USER=chat_user
+      - MYSQL_PASSWORD=chat_pass
+    ports:
+      - "3309:3306"
+    volumes:
+      - chat_test_data:/var/lib/mysql
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command: --default-authentication-plugin=mysql_native_password
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+        reservations:
+          memory: 128M
+
+# === NETWORKS & VOLUMES ===
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  matching_test_data:
+  auth_test_data:
+  scholarship_test_data:
+  chat_test_data:

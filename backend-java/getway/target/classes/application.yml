@@ -1,0 +1,11 @@
+auth:
+  service:
+    url: http://localhost:8081
+
+gateway:
+  routes:
+    mapping:
+      - pattern: /auth/**
+        url: http://localhost:8081
+      - pattern: /user/**
+        url: http://localhost:8082

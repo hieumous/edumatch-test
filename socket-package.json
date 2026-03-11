@@ -1,0 +1,17 @@
+{
+  "name": "edumatch-socket-server",
+  "version": "1.0.0",
+  "description": "Socket.IO server for EduMatch real-time features",
+  "main": "socket-server.js",
+  "scripts": {
+    "start": "node socket-server.js",
+    "dev": "nodemon socket-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
