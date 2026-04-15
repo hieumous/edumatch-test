@@ -1,0 +1,2372 @@
+{
+  "info": {
+    "_postman_id": "e2281afa-d30b-4591-a105-2458424a8444",
+    "name": "Contract Testing",
+    "description": "# About this collection\n\nThis collection helps you set up contract tests to ensure that two separate systems are compatible and can communicate with one another.\n\n## **Using the collection**\n\n**Step 1:** Send the sample requests and view the response and test results.\n\n**Step 2:** Replace the sample request URLs with your desired API endpoints.\n\n**Step 3:** Customize the tests in the \"Tests\" tab if needed. Don't forget to save your changes.\n\n### Resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)\n\n[  \n](https://postman.postman.co/documentation/24552533-5bead607-0197-4e1d-87d4-3160bc7631c1?entity=&branch=&version=)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49094904",
+    "_collection_link": "https://go.postman.co/collection/49094904-e2281afa-d30b-4591-a105-2458424a8444?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Get User Me",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "var json = pm.response.json();\r",
+                      "pm.test(\"Có id và username\", function () {\r",
+                      "    pm.expect(json).to.have.property(\"id\");\r",
+                      "    pm.expect(json).to.have.property(\"username\");\r",
+                      "});\r",
+                      "pm.test(\"Có email\", function () {\r",
+                      "    pm.expect(json).to.have.property(\"email\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/user/me",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "me"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User Me",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "var json = pm.response.json();\r",
+                      "pm.test(\"Response có username\", function () {\r",
+                      "    pm.expect(json).to.have.property(\"username\");\r",
+                      "});\r",
+                      "pm.test(\"FirstName đã cập nhật (nếu gửi)\", function () {\r",
+                      "    if (pm.request.body.raw) {\r",
+                      "        var body = JSON.parse(pm.request.body.raw);\r",
+                      "        if (body.firstName) {\r",
+                      "            pm.expect(json.firstName).to.eql(body.firstName);\r",
+                      "        }\r",
+                      "    }\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"firstName\": \"Minh\",\r\n  \"lastName\": \"Nguyễn\",\r\n  \"phone\": \"0901234567\",\r\n  \"bio\": \"Test update profile\",\r\n  \"gpa\": 3.5,\r\n  \"major\": \"Computer Science\",\r\n  \"university\": \"ĐH Bách Khoa\",\r\n  \"yearOfStudy\": 3,\r\n  \"skills\": \"Java,Spring,Postman\",\r\n  \"researchInterests\": \"AI,ML\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/user/me",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "me"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Upload Avatar",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "var json = pm.response.json();\r",
+                      "pm.test(\"Có avatarUrl trong response\", function () {\r",
+                      "    pm.expect(json).to.have.property(\"avatarUrl\");\r",
+                      "});\r",
+                      "pm.test(\"Có message success\", function () {\r",
+                      "    pm.expect(json.message).to.include(\"success\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "avatar",
+                      "type": "file",
+                      "uuid": "fe5649d5-4d35-4d58-b3ea-34ed6caca751",
+                      "src": "postman-cloud:///1f11d50c-9856-4db0-8d81-a835a8c7eab6"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/users/avatar",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "avatar"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Backend requires username exactly 6 chars.",
+                  "// Generate a 6-char username and save to variables for reuse.",
+                  "const suffix = (Date.now() % 1000).toString().padStart(3, '0');",
+                  "const username6 = `u${suffix}x${Math.floor(Math.random()*10)}`; // e.g. u123x4",
+                  "pm.environment.set('signupUsername', username6);",
+                  "pm.environment.set('signupEmail', `${username6}@example.com`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// pm.test(\"Status code is valid\", function () {\r",
+                  "//     pm.expect(pm.response.code).to.be.oneOf([200,201,400]);\r",
+                  "// });\r",
+                  "\r",
+                  "// pm.test(\"Response is JSON\", function () {\r",
+                  "//     pm.response.to.be.json;\r",
+                  "// });\r",
+                  "\r",
+                  "// let jsonData = pm.response.json();\r",
+                  "pm.test(\"Status code is valid\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200,201,400]);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response is JSON\", function () {\r",
+                  "    pm.response.to.be.json;\r",
+                  "});\r",
+                  "\r",
+                  "let jsonData = pm.response.json();\r",
+                  "\r",
+                  "if(pm.response.code === 400){\r",
+                  "    pm.test(\"Error message exists\", function () {\r",
+                  "        pm.expect(jsonData.message).to.exist;\r",
+                  "    });\r",
+                  "}\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{signupUsername}}\",\r\n  \"email\": \"{{signupEmail}}\",\r\n  \"password\": \"123456\",\r\n  \"firstName\": \"Minh\",\r\n  \"lastName\": \"Nguyen\",\r\n  \"sex\": \"MALE\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();\r",
+                  "if (json.accessToken) {\r",
+                  "    pm.environment.set(\"accessToken\", json.accessToken);\r",
+                  "}\r",
+                  "if (json.refreshToken) {\r",
+                  "    pm.environment.set(\"refreshToken\", json.refreshToken);\r",
+                  "}\r",
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"admin\",\"password\":\"admin123\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/signin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time < 2000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                  "});\r",
+                  "pm.test(\"Response must be JSON\", function () {\r",
+                  "    pm.response.to.be.json;\r",
+                  "});\r",
+                  "let jsonData = pm.response.json();\r",
+                  "pm.test(\"New accessToken is returned\", function () {\r",
+                  "    pm.expect(jsonData.accessToken).to.exist;\r",
+                  "});\r",
+                  "pm.test(\"Refresh token exists\", function () {\r",
+                  "    pm.expect(jsonData.refreshToken).to.exist;\r",
+                  "});\r",
+                  "pm.test(\"Refresh token exists\", function () {\r",
+                  "    pm.expect(jsonData.refreshToken).to.exist;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refreshToken\": \"{{refreshToken}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time < 2000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                  "});\r",
+                  "pm.test(\"Response must be JSON\", function () {\r",
+                  "    pm.response.to.be.json;\r",
+                  "});\r",
+                  "pm.test(\"Response must be JSON\", function () {\r",
+                  "    pm.response.to.be.json;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Me (Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();\r",
+                  "if (json.id != null) {\r",
+                  "    pm.environment.set(\"userId\", json.id);\r",
+                  "}\r",
+                  "// Matching service có thể dùng userId dạng string\r",
+                  "if (json.id != null) {\r",
+                  "    pm.environment.set(\"applicantId\", String(json.id));\r",
+                  "}\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time < 2000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                  "});\r",
+                  "pm.test(\"Response must be JSON\", function () {\r",
+                  "    pm.response.to.be.json;\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Create Employer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Success\", function () { pm.expect(json.success).to.be.true; });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"employer3\",\r\n  \"email\": \"employer3@test.com\",\r\n  \"password\": \"password123\",\r\n  \"firstName\": \"Nhà\",\r\n  \"lastName\": \"Tuyển dụng\",\r\n  \"sex\": \"MALE\",\r\n  \"organizationId\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/create-employer",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "create-employer"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có users và phân trang\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"users\");\r",
+                  "    pm.expect(json).to.have.property(\"totalItems\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"employer4\",\r\n  \"email\": \"employer4@test.com\",\r\n  \"password\": \"password123\",\r\n  \"firstName\": \"Nhà\",\r\n  \"lastName\": \"Tuyển dụng\",\r\n  \"sex\": \"MALE\",\r\n  \"organizationId\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/create-user",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "create-user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có id và username\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"id\");\r",
+                  "    pm.expect(json).to.have.property(\"username\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Success\", function () { pm.expect(json.success).to.be.true; });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle User Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Success\", function () { pm.expect(json.success).to.be.true; });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{userId}}/toggle-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{userId}}",
+                "toggle-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Audit Logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit/logs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit",
+                "logs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Employer Requests",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/employer/requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "employer",
+                "requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Request",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/employer/requests/{{requestId}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "employer",
+                "requests",
+                "{{requestId}}",
+                "approve"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Scholarships & Opportunities",
+      "item": [
+        {
+          "name": "Bookmarks",
+          "item": [
+            {
+              "name": "Add Bookmark",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status 200 hoặc 201\", function () {\r",
+                      "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/bookmarks/{{opportunityId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "bookmarks",
+                    "{{opportunityId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get My Bookmarks",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/bookmarks/my",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "bookmarks",
+                    "my"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Search Scholarships",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có content hoặc content rỗng\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"content\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Tạo chuỗi ngẫu nhiên đúng 50 ký tự\r",
+                  "const random50 = pm.variables.replaceIn(\"{{$randomString}}\").repeat(3).substring(0, 50);\r",
+                  "\r",
+                  "pm.variables.set(\"string50\", random50);\r",
+                  "pm.variables.set(\"string51\", random50 + \"X\");   // Dùng cho Max + 1\r",
+                  "pm.variables.set(\"string49\", random50.substring(0, 49)); // Dùng cho Max - 1"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/scholarships?q=&gpa=&studyMode=&level=&isPublic=&currentDate=&page=&size=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "scholarships"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": ""
+                },
+                {
+                  "key": "gpa",
+                  "value": ""
+                },
+                {
+                  "key": "studyMode",
+                  "value": ""
+                },
+                {
+                  "key": "level",
+                  "value": ""
+                },
+                {
+                  "key": "isPublic",
+                  "value": ""
+                },
+                {
+                  "key": "currentDate",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": ""
+                },
+                {
+                  "key": "size",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Scholarship By Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Each Opportunity must have the required information fields and save an ID\", function () {\r",
+                  "    const responseData = pm.response.json();\r",
+                  "\r",
+                  "    const dataList = responseData.content ? responseData.content : responseData;\r",
+                  "\r",
+                  "    if (dataList && dataList.length > 0) {\r",
+                  "        const item = dataList[0];\r",
+                  "        const opportunity = item.opportunity ? item.opportunity : item; \r",
+                  "\r",
+                  "        pm.expect(opportunity).to.have.property('id');\r",
+                  "        pm.expect(opportunity).to.have.property('title');\r",
+                  "        pm.expect(opportunity.id).to.be.a('number');\r",
+                  "\r",
+                  "        pm.environment.set(\"opportunityId\", opportunity.id);\r",
+                  "        \r",
+                  "        console.log(\"New opportunityId saved: \" + opportunity.id);\r",
+                  "    } else {\r",
+                  "        console.warn(\"List is empty, cannot set opportunityId\");\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/scholarships/{{opportunityId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "scholarships",
+                "{{opportunityId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Opportunities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response is a valid JSON array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Each Opportunity must have required information fields\", function () {\r",
+                  "    const responseData = pm.response.json();\r",
+                  "\r",
+                  "    if (responseData.length > 0) {\r",
+                  "        const item = responseData[0];\r",
+                  "        \r",
+                  "        pm.expect(item).to.have.property('id');\r",
+                  "        pm.expect(item).to.have.property('title');\r",
+                  "        pm.expect(item).to.have.property('creatorUserId');\r",
+                  "        pm.expect(item).to.have.property('moderationStatus');\r",
+                  "        \r",
+                  "        pm.expect(item.creatorUserId).to.be.a('number');\r",
+                  "        pm.expect(item.title).to.be.a('string');\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"All opportunities must belong to the current Creator\", function () {\r",
+                  "    const responseData = pm.response.json();\r",
+                  "    const currentUserId = pm.environment.get(\"userId\");\r",
+                  "\r",
+                  "    responseData.forEach(function(opp) {\r",
+                  "        if(currentUserId) {\r",
+                  "            pm.expect(opp.creatorUserId).to.eql(parseInt(currentUserId));\r",
+                  "        }\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Scholarship Amount cannot be negative\", function () {\r",
+                  "    const responseData = pm.response.json();\r",
+                  "    responseData.forEach(function(opp) {\r",
+                  "        if(opp.scholarshipAmount !== null) {\r",
+                  "            pm.expect(opp.scholarshipAmount).to.be.at.least(0);\r",
+                  "        }\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is less than 800ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(800);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/opportunities/my",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "opportunities",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Opportunity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 hoặc 201\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+                  "});\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có id\", function () { pm.expect(json).to.have.property(\"id\"); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Tạo chuỗi ngẫu nhiên đúng 50 ký tự\r",
+                  "const random50 = pm.variables.replaceIn(\"{{$randomString}}\").repeat(3).substring(0, 255);\r",
+                  "\r",
+                  "pm.variables.set(\"stringMax\", random50);\r",
+                  "pm.variables.set(\"stringMax+1\", random50 + \"X\");   // Dùng cho Max + 1\r",
+                  "pm.variables.set(\"stringMax-1\", random50.substring(0, 49)); // Dùng cho Max - 1"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"\",\r\n  \"fullDescription\": \"Mô tả chi tiết cơ hội.\",\r\n  \"applicationDeadline\": \"2026-12-31\",\r\n  \"startDate\": \"2025-09-01\",\r\n  \"endDate\": \"2026-06-30\",\r\n  \"scholarshipAmount\": 5000000,\r\n  \"minGpa\": 3.0,\r\n  \"studyMode\": \"FULL_TIME\",\r\n  \"level\": \"UNDERGRADUATE\",\r\n  \"isPublic\": true,\r\n  \"contactEmail\": \"contact@test.com\",\r\n  \"website\": \"https://example.com\",\r\n  \"tags\": [\"Tech\", \"Scholarship\"],\r\n  \"requiredSkills\": [\"Java\", \"English\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/opportunities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "opportunities"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Opportunity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"The response body has a valid structure\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    const opp = jsonData.opportunity ? jsonData.opportunity : jsonData;\r",
+                  "\r",
+                  "    pm.expect(opp).to.have.property('id');\r",
+                  "    pm.expect(opp).to.have.property('title');\r",
+                  "    pm.expect(opp).to.have.property('updatedAt');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Creator ID is not changed after update\", function () {\r",
+                  "    const responseData = pm.response.json();\r",
+                  "    const opp = responseData.opportunity ? responseData.opportunity : responseData;\r",
+                  "    const expectedCreatorId = pm.environment.get(\"userId\");\r",
+                  "\r",
+                  "    if (expectedCreatorId) {\r",
+                  "        pm.expect(opp.creatorUserId.toString()).to.eql(expectedCreatorId.toString());\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Fast response time (< 1s)\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Học bổng Test 2025 - UpdatebyClient\",\r\n  \"fullDescription\": \"Mô tả chi tiết cơ hội.\",\r\n  \"applicationDeadline\": \"2026-12-31\",\r\n  \"startDate\": \"2025-09-01\",\r\n  \"endDate\": \"2026-06-30\",\r\n  \"scholarshipAmount\": 5000000,\r\n  \"minGpa\": 3.0,\r\n  \"studyMode\": \"FULL_TIME\",\r\n  \"level\": \"UNDERGRADUATE\",\r\n  \"isPublic\": true,\r\n  \"contactEmail\": \"contact@test.com\",\r\n  \"website\": \"https://example.com\",\r\n  \"tags\": [\"Tech\", \"Scholarship\"],\r\n  \"requiredSkills\": [\"Java\", \"English\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/opportunities/{{opportunityId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "opportunities",
+                "{{opportunityId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Opportunity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Deletion successful - Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response body must be empty\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.equal(\"\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Fast response time (< 1s)\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/opportunities/{{opportunityId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "opportunities",
+                "{{opportunityId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Opportunity By Id (ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Admin access successfully - Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"The data returned is the correct ID requested\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    const expectedId = pm.request.url.path.slice(-1)[0]; \r",
+                  "    \r",
+                  "    const actualData = jsonData.opportunity ? jsonData.opportunity : jsonData;\r",
+                  "\r",
+                  "    pm.expect(actualData.id.toString()).to.eql(expectedId.toString());\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Admin logic: MatchScore must be null\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.matchScore).to.be.null;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Full OpportunityDetailDto structure\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    const data = jsonData.opportunity ? jsonData.opportunity : jsonData;\r",
+                  "\r",
+                  "    pm.expect(data).to.have.property('title');\r",
+                  "    pm.expect(data).to.have.property('moderationStatus');\r",
+                  "    pm.expect(data).to.have.property('creatorUserId');\r",
+                  "    \r",
+                  "    pm.expect(data.tags).to.be.an('array');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Fast detailed response (< 500ms)\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/opportunities/{{opportunityId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "opportunities",
+                "{{opportunityId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Opportunities Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Admin Dashboard Stats - Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Must return all important statistical fields\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    pm.expect(jsonData).to.have.property('totalScholarships');\r",
+                  "    pm.expect(jsonData).to.have.property('activeScholarships');\r",
+                  "    pm.expect(jsonData).to.have.property('pendingScholarships');\r",
+                  "    \r",
+                  "    pm.expect(jsonData).to.have.property('totalApplications');\r",
+                  "    pm.expect(jsonData).to.have.property('pendingApplications');\r",
+                  "    pm.expect(jsonData).to.have.property('acceptedApplications');\r",
+                  "    pm.expect(jsonData).to.have.property('rejectedApplications');\r",
+                  "\r",
+                  "    pm.expect(jsonData).to.have.property('totalFunding');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"The statistics must be valid (not negative).\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.totalScholarships).to.be.a('number').and.at.least(0);\r",
+                  "    pm.expect(jsonData.totalApplications).to.be.a('number').and.at.least(0);\r",
+                  "    pm.expect(jsonData.totalFunding).to.be.a('number').and.at.least(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Data logic: The sum of the states does not exceed the total number\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    pm.expect(jsonData.totalScholarships).to.be.at.least(jsonData.activeScholarships + jsonData.pendingScholarships);\r",
+                  "\r",
+                  "    const sumApp = jsonData.acceptedApplications + jsonData.rejectedApplications + jsonData.pendingApplications;\r",
+                  "    pm.expect(jsonData.totalApplications).to.be.at.least(sumApp);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Dashboard response time < 1.5s\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/opportunities/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "opportunities",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Opportunities Analytics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Employer Analytics - Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Analytics DTO structure with all the parts\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    \r",
+                  "    pm.expect(jsonData).to.have.property('overview');\r",
+                  "    pm.expect(jsonData).to.have.property('scholarshipPerformance');\r",
+                  "    pm.expect(jsonData).to.have.property('monthlyStats');\r",
+                  "    pm.expect(jsonData).to.have.property('statusDistribution');\r",
+                  "    \r",
+                  "    pm.expect(jsonData.scholarshipPerformance).to.be.an('array');\r",
+                  "    pm.expect(jsonData.monthlyStats).to.be.an('array');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Overview data is valid\", function () {\r",
+                  "    const overview = pm.response.json().overview;\r",
+                  "    \r",
+                  "    pm.expect(overview.totalScholarships).to.be.a('number').and.at.least(0);\r",
+                  "    pm.expect(overview.acceptanceRate).to.be.at.most(100);\r",
+                  "\r",
+                  "    const totalCalc = overview.acceptedApplications + overview.rejectedApplications + overview.pendingApplications;\r",
+                  "    pm.expect(overview.totalApplications).to.eql(totalCalc);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Performance data of each scholarship is accurate\", function () {\r",
+                  "    const performance = pm.response.json().scholarshipPerformance;\r",
+                  "    \r",
+                  "    if (performance.length > 0) {\r",
+                  "        const item = performance[0];\r",
+                  "        pm.expect(item).to.have.property('id');\r",
+                  "        pm.expect(item).to.have.property('title');\r",
+                  "        pm.expect(item).to.have.property('acceptanceRate');\r",
+                  "        pm.expect(item.applications).to.be.at.least(0);\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Monthly statistics must cover 6 months\", function () {\r",
+                  "    const monthly = pm.response.json().monthlyStats;\r",
+                  "    pm.expect(monthly).to.have.lengthOf(6);\r",
+                  "    \r",
+                  "    pm.expect(monthly[0].month).to.match(/^[A-Z][a-z]{2}$/);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Status Distribution data matches Overview\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    const dist = jsonData.statusDistribution;\r",
+                  "    const view = jsonData.overview;\r",
+                  "    \r",
+                  "    pm.expect(dist.accepted).to.eql(view.acceptedApplications);\r",
+                  "    pm.expect(dist.pending).to.eql(view.pendingApplications);\r",
+                  "    pm.expect(dist.rejected).to.eql(view.rejectedApplications);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/opportunities/analytics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "opportunities",
+                "analytics"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Create Application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có id và opportunityId\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"id\");\r",
+                  "    pm.expect(json).to.have.property(\"opportunityId\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"opportunityId\": {{opportunityId}},\r\n  \"coverLetter\": \"Tôi mong được tham gia chương trình.\",\r\n  \"motivation\": \"Đam mê nghiên cứu.\",\r\n  \"additionalInfo\": \"\",\r\n  \"gpa\": 3.5,\r\n  \"phone\": \"0901234567\",\r\n  \"documents\": []\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Applications",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/applications/my",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "my"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Applications For Opportunity",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/applications/opportunity/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "opportunity",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recent Applications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/applications/recent",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "recent"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Application Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"status\": \"APPROVED\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/applications/{{applicationId}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{applicationId}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Chat & Notifications",
+      "item": [
+        {
+          "name": "Send Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có id và content\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"id\");\r",
+                  "    pm.expect(json).to.have.property(\"content\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"receiverId\": 2,\r\n  \"content\": \"Tin nhắn test từ Postman\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/chat/send",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "chat",
+                "send"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var list = pm.response.json();\r",
+                  "pm.test(\"Response là mảng\", function () { pm.expect(list).to.be.an(\"array\"); });\r",
+                  "if (Array.isArray(list) && list.length > 0) {\r",
+                  "    var first = list[0];\r",
+                  "    var cid = first.id != null ? first.id : first.conversationId;\r",
+                  "    if (cid != null) pm.environment.set(\"conversationId\", cid);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/conversations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "conversations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Messages",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có cấu trúc Page (content)\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"content\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/messages/{{conversationId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "messages",
+                "{{conversationId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register FCM",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Success true\", function () { pm.expect(json.success).to.be.true; });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"fcmToken\": \"test-fcm-token-123\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/fcm/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "fcm",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có content (Page)\", function () { pm.expect(json).to.have.property(\"content\"); });\r",
+                  "var content = json.content || [];\r",
+                  "if (content.length > 0 && content[0].id != null) {\r",
+                  "    pm.environment.set(\"notificationId\", content[0].id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Notification Read",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 204\", function () { pm.response.to.have.status(204); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/{{notificationId}}/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notificationId}}",
+                "read"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unread Count",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có count\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"count\");\r",
+                  "    pm.expect(json.count).to.be.a(\"number\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/unread-count",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "unread-count"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Matching",
+      "item": [
+        {
+          "name": "Match Score",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có overallScore\", function () { pm.expect(json).to.have.property(\"overallScore\"); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"applicantId\": \"1\",\r\n  \"opportunityId\": \"1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/match/score",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "match",
+                "score"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Scores",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"applicantId\": \"1\",\r\n  \"opportunityIds\": [\"1\", \"2\", \"3\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/matching/batch-scores",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "matching",
+                "batch-scores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recommendations For Applicant",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Recommendations For Opportunity",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Gateway Health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có status\", function () { pm.expect(json).to.have.property(\"status\"); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Opportunity",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://postman-echo.com"
+    }
+  ]
+}

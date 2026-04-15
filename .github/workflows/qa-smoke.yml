@@ -1,0 +1,48 @@
+name: qa-smoke
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  postman-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Target issue to write results to (not a secret).
+      JIRA_ISSUE_KEY: EADUMATCH-58
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Newman
+        run: npm install --no-fund --no-audit --global newman@latest
+
+      - name: Run smoke collection
+        run: |
+          mkdir -p qa/reports/newman
+          newman run "qa/postman/EduMatch.local.smoke.postman_collection.json" \
+            -e "qa/postman/Edumatch.local.postman_environment.json" \
+            --reporters cli,junit \
+            --reporter-junit-export "qa/reports/newman/junit.xml"
+
+      - name: Comment result to Jira
+        if: always() && secrets.JIRA_API_TOKEN != '' && secrets.JIRA_EMAIL != '' && secrets.JIRA_BASE_URL != ''
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: node "qa/scripts/jira_comment_from_junit.mjs" "qa/reports/newman/junit.xml"
+
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-smoke-report
+          path: qa/reports/newman
+

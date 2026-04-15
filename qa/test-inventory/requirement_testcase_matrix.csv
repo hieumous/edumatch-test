@@ -1,0 +1,5 @@
+Module,Actor/Role,Flow,TestCaseID,Priority(Critical/High/Medium/Low),Type(Smoke/Regression/Integration/UI/Manual),API_or_UI,Preconditions,Steps,Expected,Actual,Status(Pass/Fail/Blocked/NotRun),EvidencePathOrLink,RelatedTicket,Notes/Assumptions
+Auth,Applicant,Sign up,AUTH-SMOKE-001,Critical,Smoke,API:/api/auth/signup,"Docker stack up; DB healthy","1) POST signup","201 Created + token/response",,,,"",,Username must be 6 chars per backend validation
+Auth,Applicant,Sign in,AUTH-SMOKE-002,Critical,Smoke,API:/api/auth/signin,"Existing user","1) POST signin","200 OK + access token",,,,"",,
+Auth,Applicant,Get current user,AUTH-SMOKE-003,Critical,Smoke,API:/api/auth/me,"Valid access token","1) GET me with Authorization","200 OK + user summary",,,,"",,
+Gateway,System,Health check,GW-SMOKE-001,High,Smoke,API:/gateway/health,"Docker stack up","1) GET gateway health","200 OK + status=healthy",,,,"",,
