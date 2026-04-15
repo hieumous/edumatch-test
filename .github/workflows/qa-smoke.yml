@@ -22,6 +22,10 @@ jobs:
 
       - name: Start Docker stack (minimal)
         run: |
+          # Bring up DNS stubs first so nginx can resolve upstream hostnames on boot.
+          docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml up -d --build \
+            chat-service-test frontend-test
+
           docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml up -d --build \
             auth-db scholarship-db matching-db rabbitmq \
             auth-service scholarship-service matching-service \

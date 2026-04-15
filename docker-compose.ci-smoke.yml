@@ -1,7 +1,9 @@
 services:
-  # Minimal stub so nginx-gateway can resolve `chat-service` upstream during CI.
-  # The real chat-service needs Firebase credentials; CI smoke does not need chat features.
-  chat-service:
+  # Nginx config in this repo uses explicit container hostnames like `frontend-test` and `chat-service-test`
+  # in upstream blocks. For CI smoke we don't boot the real Next.js app / Firebase-backed chat service,
+  # so we provide tiny HTTP stubs with matching network aliases.
+
+  chat-service-test:
     image: python:3.12-slim
     container_name: chat-service-ci-stub
     command: >
@@ -14,4 +16,23 @@ services:
           return
       socketserver.TCPServer(('0.0.0.0', 8083), H).serve_forever()"
     networks:
-      - test-network
+      test-network:
+        aliases:
+          - chat-service-test
+
+  frontend-test:
+    image: python:3.12-slim
+    container_name: frontend-ci-stub
+    command: >
+      python -c "import http.server, socketserver;
+      class H(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+          self.send_response(200); self.end_headers();
+          self.wfile.write(b'frontend-stub')
+        def log_message(self, format, *args):
+          return
+      socketserver.TCPServer(('0.0.0.0', 3000), H).serve_forever()"
+    networks:
+      test-network:
+        aliases:
+          - frontend-test
