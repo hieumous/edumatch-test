@@ -1,6 +1,5 @@
 # Docker Compose for Testing - ONLY Auth Service & Matching Service
 # Comment out all unnecessary services
-version: '3.8'
 
 services:
   
