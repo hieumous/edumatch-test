@@ -32,11 +32,11 @@ jobs:
             --reporter-junit-export "qa/reports/newman/junit.xml"
 
       - name: Comment result to Jira
-        if: always() && secrets.JIRA_API_TOKEN != '' && secrets.JIRA_EMAIL != '' && secrets.JIRA_BASE_URL != ''
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        if: always() && env.JIRA_API_TOKEN != '' && env.JIRA_EMAIL != '' && env.JIRA_BASE_URL != ''
         run: node "qa/scripts/jira_comment_from_junit.mjs" "qa/reports/newman/junit.xml"
 
       - name: Upload report artifact
