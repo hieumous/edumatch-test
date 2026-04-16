@@ -64,7 +64,15 @@ jobs:
           mkdir -p qa/reports/newman
           newman run "qa/postman/EduMatch.full.regression.postman_collection.json" \
             -e "qa/postman/Edumatch.scholarship.local.postman_environment.json" \
-            --folder "Auth" \
+            --folder "Register" \
+            --folder "Applicant Login" \
+            --folder "Login" \
+            --folder "Admin Create Employer" \
+            --folder "Employer Login" \
+            --folder "Refresh Token" \
+            --folder "Verify Token" \
+            --folder "Get Me (Auth)" \
+            --folder "User" \
             --folder "Scholarships & Opportunities" \
             --folder "Applications" \
             --reporters cli,junit \

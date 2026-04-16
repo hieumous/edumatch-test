@@ -48,7 +48,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "{{accessToken}}",
+                      "value": "{{adminAccessToken}}",
                       "type": "string"
                     }
                   ]
@@ -113,7 +113,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "{{accessToken}}",
+                      "value": "{{adminAccessToken}}",
                       "type": "string"
                     }
                   ]
@@ -173,7 +173,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "{{accessToken}}",
+                      "value": "{{adminAccessToken}}",
                       "type": "string"
                     }
                   ]
@@ -288,6 +288,41 @@
           "response": []
         },
         {
+          "name": "Applicant Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+                  "var json = pm.response.json();\r",
+                  "if (json.accessToken) pm.environment.set(\"applicantAccessToken\", json.accessToken);\r",
+                  "if (json.refreshToken) pm.environment.set(\"applicantRefreshToken\", json.refreshToken);\r"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{signupUsername}}\",\r\n  \"password\": \"123456\"\r\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/signin",
+              "host": [ "{{auth_base_url}}" ],
+              "path": [ "api", "auth", "signin" ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Login",
           "event": [
             {
@@ -296,10 +331,10 @@
                 "exec": [
                   "var json = pm.response.json();\r",
                   "if (json.accessToken) {\r",
-                  "    pm.environment.set(\"accessToken\", json.accessToken);\r",
+                  "    pm.environment.set(\"adminAccessToken\", json.accessToken);\r",
                   "}\r",
                   "if (json.refreshToken) {\r",
-                  "    pm.environment.set(\"refreshToken\", json.refreshToken);\r",
+                  "    pm.environment.set(\"adminRefreshToken\", json.refreshToken);\r",
                   "}\r",
                   "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
                 ],
@@ -334,6 +369,90 @@
                 "auth",
                 "signin"
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Create Employer",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = (Date.now() % 100000).toString();\r",
+                  "pm.environment.set('employerUsername', `emp${suffix}`);\r",
+                  "pm.environment.set('employerEmail', `emp${suffix}@example.com`);\r",
+                  "pm.environment.set('employerPassword', 'password123');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminAccessToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{employerUsername}}\",\r\n  \"email\": \"{{employerEmail}}\",\r\n  \"password\": \"{{employerPassword}}\",\r\n  \"firstName\": \"Nhà\",\r\n  \"lastName\": \"Tuyển dụng\",\r\n  \"sex\": \"MALE\",\r\n  \"organizationId\": null\r\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/admin/create-employer",
+              "host": [ "{{auth_base_url}}" ],
+              "path": [ "api", "admin", "create-employer" ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Employer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+                  "var json = pm.response.json();\r",
+                  "if (json.accessToken) pm.environment.set(\"employerAccessToken\", json.accessToken);\r",
+                  "if (json.refreshToken) pm.environment.set(\"employerRefreshToken\", json.refreshToken);\r"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{employerUsername}}\",\r\n  \"password\": \"{{employerPassword}}\"\r\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/signin",
+              "host": [ "{{auth_base_url}}" ],
+              "path": [ "api", "auth", "signin" ]
             }
           },
           "response": []
@@ -376,7 +495,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"refreshToken\": \"{{refreshToken}}\"}",
+              "raw": "{\"refreshToken\": \"{{adminRefreshToken}}\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -432,7 +551,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{adminAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -500,7 +619,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -573,7 +692,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{adminAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -629,7 +748,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -685,7 +804,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{applicantAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -730,7 +849,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{applicantAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -775,7 +894,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{applicantAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -819,7 +938,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -974,6 +1093,16 @@
                 }
               ],
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{applicantAccessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "POST",
                 "header": [],
                 "url": {
@@ -993,6 +1122,16 @@
             {
               "name": "Get My Bookmarks",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{applicantAccessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
                 "url": {
@@ -1022,7 +1161,20 @@
                   "var json = pm.response.json();\r",
                   "pm.test(\"Có content hoặc content rỗng\", function () {\r",
                   "    pm.expect(json).to.have.property(\"content\");\r",
-                  "});"
+                  "});\r",
+                  "\r",
+                  "// Save an opportunityId for later steps (if list is not empty)\r",
+                  "try {\r",
+                  "  const content = Array.isArray(json.content) ? json.content : [];\r",
+                  "  if (content.length > 0) {\r",
+                  "    const first = content[0];\r",
+                  "    const opp = first.opportunity ? first.opportunity : first;\r",
+                  "    if (opp && opp.id != null) {\r",
+                  "      pm.environment.set('opportunityId', opp.id);\r",
+                  "      console.log('Saved opportunityId from search:', opp.id);\r",
+                  "    }\r",
+                  "  }\r",
+                  "} catch (e) { console.warn('Cannot set opportunityId from search', e); }"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -1136,7 +1288,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{applicantAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1224,7 +1376,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1256,7 +1408,8 @@
                   "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
                   "});\r",
                   "var json = pm.response.json();\r",
-                  "pm.test(\"Có id\", function () { pm.expect(json).to.have.property(\"id\"); });"
+                  "pm.test(\"Có id\", function () { pm.expect(json).to.have.property(\"id\"); });\r",
+                  "if (json.id != null) { pm.environment.set('opportunityId', json.id); }"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -1286,7 +1439,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1295,7 +1448,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"title\": \"\",\r\n  \"fullDescription\": \"Mô tả chi tiết cơ hội.\",\r\n  \"applicationDeadline\": \"2026-12-31\",\r\n  \"startDate\": \"2025-09-01\",\r\n  \"endDate\": \"2026-06-30\",\r\n  \"scholarshipAmount\": 5000000,\r\n  \"minGpa\": 3.0,\r\n  \"studyMode\": \"FULL_TIME\",\r\n  \"level\": \"UNDERGRADUATE\",\r\n  \"isPublic\": true,\r\n  \"contactEmail\": \"contact@test.com\",\r\n  \"website\": \"https://example.com\",\r\n  \"tags\": [\"Tech\", \"Scholarship\"],\r\n  \"requiredSkills\": [\"Java\", \"English\"]\r\n}",
+              "raw": "{\r\n  \"title\": \"Học bổng Test 2026\",\r\n  \"fullDescription\": \"Mô tả chi tiết cơ hội.\",\r\n  \"applicationDeadline\": \"2026-12-31\",\r\n  \"startDate\": \"2025-09-01\",\r\n  \"endDate\": \"2026-06-30\",\r\n  \"scholarshipAmount\": 5000000,\r\n  \"minGpa\": 3.0,\r\n  \"studyMode\": \"FULL_TIME\",\r\n  \"level\": \"UNDERGRADUATE\",\r\n  \"isPublic\": true,\r\n  \"contactEmail\": \"contact@test.com\",\r\n  \"website\": \"https://example.com\",\r\n  \"tags\": [\"Tech\", \"Scholarship\"],\r\n  \"requiredSkills\": [\"Java\", \"English\"]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1362,7 +1515,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1423,7 +1576,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1498,7 +1651,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{adminAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1578,7 +1731,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{adminAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1673,7 +1826,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1728,7 +1881,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{applicantAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1765,7 +1918,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{applicantAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1794,7 +1947,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -1819,6 +1972,16 @@
         {
           "name": "Get Recent Applications",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1843,7 +2006,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{employerAccessToken}}",
                   "type": "string"
                 }
               ]
