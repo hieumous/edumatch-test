@@ -1,0 +1,567 @@
+{
+  "info": {
+    "_postman_id": "0d1a9f7a-4fa9-4d9b-8581-8d0b6f4b8102",
+    "name": "EduMatch Admin Regression",
+    "description": "Stable admin regression collection for CI.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = pm.response.json();",
+              "if (json.accessToken) pm.environment.set('accessToken', json.accessToken);",
+              "if (json.refreshToken) pm.environment.set('refreshToken', json.refreshToken);",
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"admin\",\"password\":\"admin123\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/signin",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "signin"]
+        }
+      }
+    },
+    {
+      "name": "Get Me (Auth)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = pm.response.json();",
+              "if (json.id != null) pm.environment.set('userId', json.id);",
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/auth/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "me"]
+        }
+      }
+    },
+    {
+      "name": "Create Employer",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now().toString().slice(-4);",
+              "pm.environment.set('adminCreateEmployerUsername', `e${suffix}r`);",
+              "pm.environment.set('adminCreateEmployerEmail', `employer${suffix}@test.com`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Success', function () { pm.expect(json.success).to.be.true; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{adminCreateEmployerUsername}}\",\n  \"email\": \"{{adminCreateEmployerEmail}}\",\n  \"password\": \"password123\",\n  \"firstName\": \"Nha\",\n  \"lastName\": \"Tuyen dung\",\n  \"sex\": \"MALE\",\n  \"organizationId\": null\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/admin/create-employer",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "create-employer"]
+        }
+      }
+    },
+    {
+      "name": "Create User",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now().toString().slice(-4);",
+              "pm.environment.set('adminCreateUserUsername', `u${suffix}r`);",
+              "pm.environment.set('adminCreateUserEmail', `user${suffix}@test.com`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Success', function () { pm.expect(json.success).to.be.true; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{adminCreateUserUsername}}\",\n  \"email\": \"{{adminCreateUserEmail}}\",\n  \"password\": \"password123\",\n  \"firstName\": \"Nguoi\",\n  \"lastName\": \"Dung\",\n  \"sex\": \"MALE\",\n  \"organizationId\": null\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/admin/create-user",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "create-user"]
+        }
+      }
+    },
+    {
+      "name": "Get All Users",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Co users va phan trang', function () {",
+              "  pm.expect(json).to.have.property('users');",
+              "  pm.expect(json).to.have.property('totalItems');",
+              "});",
+              "if (Array.isArray(json.users) && json.users.length > 0 && json.users[0].id != null) {",
+              "  pm.environment.set('managedUserId', json.users[0].id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/users?keyword={{adminCreateUserUsername}}&page=0&size=10",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "users"],
+          "query": [
+            { "key": "keyword", "value": "{{adminCreateUserUsername}}" },
+            { "key": "page", "value": "0" },
+            { "key": "size", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get User By Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Co id va username', function () {",
+              "  pm.expect(json).to.have.property('id');",
+              "  pm.expect(json).to.have.property('username');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/users/{{managedUserId}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "users", "{{managedUserId}}"]
+        }
+      }
+    },
+    {
+      "name": "Toggle User Status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Success', function () { pm.expect(json.success).to.be.true; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/users/{{managedUserId}}/toggle-status",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "users", "{{managedUserId}}", "toggle-status"]
+        }
+      }
+    },
+    {
+      "name": "Delete User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Success', function () { pm.expect(json.success).to.be.true; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/users/{{managedUserId}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "users", "{{managedUserId}}"]
+        }
+      }
+    },
+    {
+      "name": "Audit Logs",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/audit/logs",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "audit", "logs"]
+        }
+      }
+    },
+    {
+      "name": "Admin Stats",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/stats",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "stats"]
+        }
+      }
+    },
+    {
+      "name": "Register Employer Request User",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now().toString().slice(-4);",
+              "pm.environment.set('employerRequestUsername', `r${suffix}u`);",
+              "pm.environment.set('employerRequestEmail', `request${suffix}@test.com`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is valid', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{employerRequestUsername}}\",\n  \"email\": \"{{employerRequestEmail}}\",\n  \"password\": \"123456\",\n  \"firstName\": \"Request\",\n  \"lastName\": \"User\",\n  \"sex\": \"MALE\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/signup",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "signup"]
+        }
+      }
+    },
+    {
+      "name": "Login Employer Request User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = pm.response.json();",
+              "if (json.accessToken) pm.environment.set('accessToken', json.accessToken);",
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"{{employerRequestUsername}}\",\"password\":\"123456\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/signin",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "signin"]
+        }
+      }
+    },
+    {
+      "name": "Create Employer Request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Co request id', function () { pm.expect(json).to.have.property('id'); });",
+              "if (json.id != null) pm.environment.set('requestId', json.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationName\": \"Org {{employerRequestUsername}}\",\n  \"description\": \"Request created by regression test\",\n  \"organizationType\": \"UNIVERSITY\",\n  \"website\": \"https://example.com\",\n  \"email\": \"{{employerRequestEmail}}\",\n  \"phone\": \"0901234567\",\n  \"address\": \"123 Test Street\",\n  \"country\": \"Vietnam\",\n  \"city\": \"Hanoi\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/employer/request",
+          "host": ["{{base_url}}"],
+          "path": ["api", "employer", "request"]
+        }
+      }
+    },
+    {
+      "name": "Login Admin Again",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = pm.response.json();",
+              "if (json.accessToken) pm.environment.set('accessToken', json.accessToken);",
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"admin\",\"password\":\"admin123\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/signin",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "signin"]
+        }
+      }
+    },
+    {
+      "name": "Employer Requests",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Co requests', function () { pm.expect(json).to.have.property('requests'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/employer/requests",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "employer", "requests"]
+        }
+      }
+    },
+    {
+      "name": "Get Employer Request By Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Dung request id', function () { pm.expect(String(json.id)).to.eql(String(pm.environment.get('requestId'))); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/employer/requests/{{requestId}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "employer", "requests", "{{requestId}}"]
+        }
+      }
+    },
+    {
+      "name": "Approve Request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Request approved', function () { pm.expect(json.status).to.eql('APPROVED'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/employer/requests/{{requestId}}/approve",
+          "host": ["{{base_url}}"],
+          "path": ["api", "admin", "employer", "requests", "{{requestId}}", "approve"]
+        }
+      }
+    }
+  ]
+}

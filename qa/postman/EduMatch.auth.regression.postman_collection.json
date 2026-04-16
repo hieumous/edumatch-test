@@ -239,6 +239,46 @@
           "path": ["api", "user", "me"]
         }
       }
+    },
+    {
+      "name": "Upload Avatar",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Co avatarUrl trong response', function () { pm.expect(json).to.have.property('avatarUrl'); });",
+              "pm.test('Co message success', function () { pm.expect((json.message || '').toLowerCase()).to.include('success'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "avatar",
+              "type": "file",
+              "src": "qa/postman/fixtures/avatar-test.svg"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/users/avatar",
+          "host": ["{{base_url}}"],
+          "path": ["api", "users", "avatar"]
+        }
+      }
     }
   ]
 }
