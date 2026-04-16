@@ -15,11 +15,27 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Start scholarship stack
+      - name: Start module dependencies
         run: |
-          docker compose up -d --build \
-            auth-db scholarship-db rabbitmq \
-            auth-service scholarship-service
+          docker compose up -d auth-db scholarship-db rabbitmq
+          docker compose ps
+
+      - name: Wait for databases readiness
+        run: |
+          set -e
+          for i in $(seq 1 60); do
+            auth_db=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' auth-db-test 2>/dev/null || true)
+            schol_db=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' scholarship-db-test 2>/dev/null || true)
+            echo "db: try=$i auth-db=$auth_db scholarship-db=$schol_db"
+            if [ "$auth_db" = "healthy" ] && [ "$schol_db" = "healthy" ]; then exit 0; fi
+            sleep 2
+          done
+          docker compose logs --no-color --tail=200 auth-db scholarship-db || true
+          exit 1
+
+      - name: Start module services
+        run: |
+          docker compose up -d --build auth-service scholarship-service
           docker compose ps
 
       - name: Wait for module readiness

@@ -65,9 +65,9 @@
                   }
                 },
                 "url": {
-                  "raw": "{{base_url}}/api/user/me",
+                  "raw": "{{auth_base_url}}/api/user/me",
                   "host": [
-                    "{{base_url}}"
+                    "{{auth_base_url}}"
                   ],
                   "path": [
                     "api",
@@ -130,9 +130,9 @@
                   }
                 },
                 "url": {
-                  "raw": "{{base_url}}/api/user/me",
+                  "raw": "{{auth_base_url}}/api/user/me",
                   "host": [
-                    "{{base_url}}"
+                    "{{auth_base_url}}"
                   ],
                   "path": [
                     "api",
@@ -187,14 +187,14 @@
                       "key": "avatar",
                       "type": "file",
                       "uuid": "fe5649d5-4d35-4d58-b3ea-34ed6caca751",
-                      "src": "postman-cloud:///1f11d50c-9856-4db0-8d81-a835a8c7eab6"
+                      "src": "qa/postman/fixtures/avatar-test.svg"
                     }
                   ]
                 },
                 "url": {
-                  "raw": "{{base_url}}/api/users/avatar",
+                  "raw": "{{auth_base_url}}/api/users/avatar",
                   "host": [
-                    "{{base_url}}"
+                    "{{auth_base_url}}"
                   ],
                   "path": [
                     "api",
@@ -274,9 +274,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/signup",
+              "raw": "{{auth_base_url}}/api/auth/signup",
               "host": [
-                "{{base_url}}"
+                "{{auth_base_url}}"
               ],
               "path": [
                 "api",
@@ -325,9 +325,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/signin",
+              "raw": "{{auth_base_url}}/api/auth/signin",
               "host": [
-                "{{base_url}}"
+                "{{auth_base_url}}"
               ],
               "path": [
                 "api",
@@ -384,9 +384,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/refresh",
+              "raw": "{{auth_base_url}}/api/auth/refresh",
               "host": [
-                "{{base_url}}"
+                "{{auth_base_url}}"
               ],
               "path": [
                 "api",
@@ -449,9 +449,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/verify",
+              "raw": "{{auth_base_url}}/api/auth/verify",
               "host": [
-                "{{base_url}}"
+                "{{auth_base_url}}"
               ],
               "path": [
                 "api",
@@ -508,9 +508,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/auth/me",
+              "raw": "{{auth_base_url}}/api/auth/me",
               "host": [
-                "{{base_url}}"
+                "{{auth_base_url}}"
               ],
               "path": [
                 "api",
