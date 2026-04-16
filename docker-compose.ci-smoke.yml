@@ -1,9 +1,8 @@
 services:
-  # Nginx config in this repo uses explicit container hostnames like `frontend-test` and `chat-service-test`
-  # in upstream blocks. For CI smoke we don't boot the real Next.js app / Firebase-backed chat service,
-  # so we provide tiny HTTP stubs with matching network aliases.
+  # For CI smoke we replace frontend/chat with tiny stubs under the normal
+  # docker-compose service names so nginx can resolve them consistently.
 
-  chat-service-test:
+  chat-service:
     image: python:3.12-slim
     container_name: chat-service-ci-stub
     command: >
@@ -16,11 +15,9 @@ services:
           return
       socketserver.TCPServer(('0.0.0.0', 8083), H).serve_forever()"
     networks:
-      test-network:
-        aliases:
-          - chat-service-test
+      - test-network
 
-  frontend-test:
+  frontend:
     image: python:3.12-slim
     container_name: frontend-ci-stub
     command: >
@@ -33,24 +30,4 @@ services:
           return
       socketserver.TCPServer(('0.0.0.0', 3000), H).serve_forever()"
     networks:
-      test-network:
-        aliases:
-          - frontend-test
-
-  auth-service:
-    networks:
-      test-network:
-        aliases:
-          - auth-service-test
-
-  scholarship-service:
-    networks:
-      test-network:
-        aliases:
-          - scholarship-service-test
-
-  matching-service:
-    networks:
-      test-network:
-        aliases:
-          - matching-service-test
+      - test-network

@@ -308,7 +308,7 @@ services:
       - APP_JWT_SECRET=EduMatch_Super_Secret_Key_!@#_DoNotShare_!@#
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
-      - APP_SERVICES_AUTH-SERVICE_URL=http://auth-service-test:8081
+      - APP_SERVICES_AUTH-SERVICE_URL=http://auth-service:8081
       # Giới hạn JVM
       - JAVA_OPTS=-Xms128m -Xmx300m
     depends_on:

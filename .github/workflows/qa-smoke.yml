@@ -22,9 +22,9 @@ jobs:
 
       - name: Start Docker stack (minimal)
         run: |
-          # Bring up DNS stubs first so nginx can resolve upstream hostnames on boot.
+          # Bring up stubs first so nginx can resolve upstream hostnames on boot.
           docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml up -d --build \
-            chat-service-test frontend-test
+            chat-service frontend
 
           docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml up -d --build \
             auth-db scholarship-db matching-db rabbitmq \
@@ -36,7 +36,7 @@ jobs:
         run: |
           set -e
           curl_code () {
-            curl --max-time 2 -s -o /dev/null -w "%{http_code}" "$1" || printf "000"
+            curl --max-time 2 -s -o /dev/null -w "%{http_code}" "$1" || true
           }
 
           echo "Waiting for gateway health..."
