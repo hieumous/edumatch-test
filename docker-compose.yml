@@ -76,8 +76,8 @@ services:
       - APP_JWT_EXPIRATION=86400000
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
-      # Giới hạn JVM Heap để Java không ăn quá limit của Docker
-      - JAVA_OPTS=-Xms256m -Xmx400m
+      # JAVA_TOOL_OPTIONS is picked up automatically by the JVM in containers.
+      - JAVA_TOOL_OPTIONS=-Xms256m -Xmx400m
     depends_on:
       auth-db:
         condition: service_healthy
@@ -309,8 +309,8 @@ services:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - APP_SERVICES_AUTH-SERVICE_URL=http://auth-service:8081
-      # Giới hạn JVM
-      - JAVA_OPTS=-Xms128m -Xmx300m
+      # JAVA_TOOL_OPTIONS is picked up automatically by the JVM in containers.
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx300m
     depends_on:
       scholarship-db:
         condition: service_healthy
@@ -351,8 +351,8 @@ services:
       - SPRING_RABBITMQ_USERNAME=guest
       - SPRING_RABBITMQ_PASSWORD=guest
       - APP_FIREBASE_SDK_PATH=classpath:firebase-adminsdk-key.json
-      # Giới hạn JVM
-      - JAVA_OPTS=-Xms128m -Xmx300m
+      # JAVA_TOOL_OPTIONS is picked up automatically by the JVM in containers.
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx300m
     depends_on:
       chat-db:
         condition: service_healthy

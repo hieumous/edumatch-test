@@ -84,6 +84,11 @@ const runUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY &&
 const sha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7) : null;
 const refName = process.env.GITHUB_REF_NAME ?? null;
 
+if (!fs.existsSync(junitPath)) {
+  console.log(`Skipping Jira comment because JUnit report is missing: ${junitPath}`);
+  process.exit(0);
+}
+
 const xml = fs.readFileSync(junitPath, "utf8");
 const s = parseJUnitSummary(xml);
 
