@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      JIRA_ISSUE_KEY: EDUMATCH-58
+      JIRA_ISSUE_KEY: EDUMATCH-61
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -42,9 +42,8 @@ jobs:
       - name: Run auth regression
         run: |
           mkdir -p qa/reports/newman
-          newman run "qa/postman/EduMatch.full.regression.postman_collection.json" \
+          newman run "qa/postman/EduMatch.auth.regression.postman_collection.json" \
             -e "qa/postman/Edumatch.auth.local.postman_environment.json" \
-            --folder "Auth" \
             --reporters cli,junit \
             --reporter-junit-export "qa/reports/newman/auth-junit.xml"
 

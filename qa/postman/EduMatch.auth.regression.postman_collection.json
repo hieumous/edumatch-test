@@ -1,0 +1,244 @@
+{
+  "info": {
+    "_postman_id": "f2a0d74b-f777-4d60-8e3b-9b23e8646101",
+    "name": "EduMatch Auth Regression",
+    "description": "Ordered auth regression collection for CI: login/setup before authenticated profile requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = (Date.now() % 1000).toString().padStart(3, '0');",
+              "const username6 = `u${suffix}x${Math.floor(Math.random()*10)}`;",
+              "pm.environment.set('signupUsername', username6);",
+              "pm.environment.set('signupEmail', `${username6}@example.com`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is valid', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);",
+              "});",
+              "pm.test('Response is JSON', function () {",
+              "  pm.response.to.be.json;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{signupUsername}}\",\n  \"email\": \"{{signupEmail}}\",\n  \"password\": \"123456\",\n  \"firstName\": \"Minh\",\n  \"lastName\": \"Nguyen\",\n  \"sex\": \"MALE\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/signup",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "signup"]
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = pm.response.json();",
+              "if (json.accessToken) pm.environment.set('accessToken', json.accessToken);",
+              "if (json.refreshToken) pm.environment.set('refreshToken', json.refreshToken);",
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"admin\",\"password\":\"admin123\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/signin",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "signin"]
+        }
+      }
+    },
+    {
+      "name": "Refresh Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Response must be JSON', function () { pm.response.to.be.json; });",
+              "let jsonData = pm.response.json();",
+              "pm.test('New accessToken is returned', function () { pm.expect(jsonData.accessToken).to.exist; });",
+              "pm.test('Refresh token exists', function () { pm.expect(jsonData.refreshToken).to.exist; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"refreshToken\": \"{{refreshToken}}\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/refresh",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "refresh"]
+        }
+      }
+    },
+    {
+      "name": "Verify Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Response must be JSON', function () { pm.response.to.be.json; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/auth/verify",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "verify"]
+        }
+      }
+    },
+    {
+      "name": "Get Me (Auth)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = pm.response.json();",
+              "if (json.id != null) pm.environment.set('userId', json.id);",
+              "if (json.id != null) pm.environment.set('applicantId', String(json.id));",
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Response must be JSON', function () { pm.response.to.be.json; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/auth/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "me"]
+        }
+      }
+    },
+    {
+      "name": "Get User Me",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Có id và username', function () {",
+              "  pm.expect(json).to.have.property('id');",
+              "  pm.expect(json).to.have.property('username');",
+              "});",
+              "pm.test('Có email', function () { pm.expect(json).to.have.property('email'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/user/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "user", "me"]
+        }
+      }
+    },
+    {
+      "name": "Update User Me",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Response có username', function () { pm.expect(json).to.have.property('username'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Minh\",\n  \"lastName\": \"Nguyen\",\n  \"phone\": \"0901234567\",\n  \"bio\": \"Test update profile\",\n  \"gpa\": 3.5,\n  \"major\": \"Computer Science\",\n  \"university\": \"Bach Khoa\",\n  \"yearOfStudy\": 3,\n  \"skills\": \"Java,Spring,Postman\",\n  \"researchInterests\": \"AI,ML\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/user/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "user", "me"]
+        }
+      }
+    }
+  ]
+}
