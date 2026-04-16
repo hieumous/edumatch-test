@@ -12,202 +12,6 @@
       "name": "Auth",
       "item": [
         {
-          "name": "User",
-          "item": [
-            {
-              "name": "Get User Me",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status 200\", function () {\r",
-                      "    pm.response.to.have.status(200);\r",
-                      "});\r",
-                      "var json = pm.response.json();\r",
-                      "pm.test(\"Có id và username\", function () {\r",
-                      "    pm.expect(json).to.have.property(\"id\");\r",
-                      "    pm.expect(json).to.have.property(\"username\");\r",
-                      "});\r",
-                      "pm.test(\"Có email\", function () {\r",
-                      "    pm.expect(json).to.have.property(\"email\");\r",
-                      "});"
-                    ],
-                    "type": "text/javascript",
-                    "packages": {},
-                    "requests": {}
-                  }
-                }
-              ],
-              "protocolProfileBehavior": {
-                "disableBodyPruning": true
-              },
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{adminAccessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{auth_base_url}}/api/user/me",
-                  "host": [
-                    "{{auth_base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "user",
-                    "me"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Update User Me",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status 200\", function () {\r",
-                      "    pm.response.to.have.status(200);\r",
-                      "});\r",
-                      "var json = pm.response.json();\r",
-                      "pm.test(\"Response có username\", function () {\r",
-                      "    pm.expect(json).to.have.property(\"username\");\r",
-                      "});\r",
-                      "pm.test(\"FirstName đã cập nhật (nếu gửi)\", function () {\r",
-                      "    if (pm.request.body.raw) {\r",
-                      "        var body = JSON.parse(pm.request.body.raw);\r",
-                      "        if (body.firstName) {\r",
-                      "            pm.expect(json.firstName).to.eql(body.firstName);\r",
-                      "        }\r",
-                      "    }\r",
-                      "});"
-                    ],
-                    "type": "text/javascript",
-                    "packages": {},
-                    "requests": {}
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{adminAccessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n  \"firstName\": \"Minh\",\r\n  \"lastName\": \"Nguyễn\",\r\n  \"phone\": \"0901234567\",\r\n  \"bio\": \"Test update profile\",\r\n  \"gpa\": 3.5,\r\n  \"major\": \"Computer Science\",\r\n  \"university\": \"ĐH Bách Khoa\",\r\n  \"yearOfStudy\": 3,\r\n  \"skills\": \"Java,Spring,Postman\",\r\n  \"researchInterests\": \"AI,ML\"\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{auth_base_url}}/api/user/me",
-                  "host": [
-                    "{{auth_base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "user",
-                    "me"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Upload Avatar",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status 200\", function () {\r",
-                      "    pm.response.to.have.status(200);\r",
-                      "});\r",
-                      "var json = pm.response.json();\r",
-                      "pm.test(\"Có avatarUrl trong response\", function () {\r",
-                      "    pm.expect(json).to.have.property(\"avatarUrl\");\r",
-                      "});\r",
-                      "pm.test(\"Có message success\", function () {\r",
-                      "    pm.expect(json.message).to.include(\"success\");\r",
-                      "});"
-                    ],
-                    "type": "text/javascript",
-                    "packages": {},
-                    "requests": {}
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{adminAccessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "formdata",
-                  "formdata": [
-                    {
-                      "key": "avatar",
-                      "type": "file",
-                      "uuid": "fe5649d5-4d35-4d58-b3ea-34ed6caca751",
-                      "src": "qa/postman/fixtures/avatar-test.svg"
-                    }
-                  ]
-                },
-                "url": {
-                  "raw": "{{auth_base_url}}/api/users/avatar",
-                  "host": [
-                    "{{auth_base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "users",
-                    "avatar"
-                  ]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
           "name": "Register",
           "event": [
             {
@@ -639,6 +443,203 @@
             }
           },
           "response": []
+        }
+        ,
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Get User Me",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "var json = pm.response.json();\r",
+                      "pm.test(\"Có id và username\", function () {\r",
+                      "    pm.expect(json).to.have.property(\"id\");\r",
+                      "    pm.expect(json).to.have.property(\"username\");\r",
+                      "});\r",
+                      "pm.test(\"Có email\", function () {\r",
+                      "    pm.expect(json).to.have.property(\"email\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{applicantAccessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/api/user/me",
+                  "host": [
+                    "{{auth_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "me"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User Me",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "var json = pm.response.json();\r",
+                      "pm.test(\"Response có username\", function () {\r",
+                      "    pm.expect(json).to.have.property(\"username\");\r",
+                      "});\r",
+                      "pm.test(\"FirstName đã cập nhật (nếu gửi)\", function () {\r",
+                      "    if (pm.request.body.raw) {\r",
+                      "        var body = JSON.parse(pm.request.body.raw);\r",
+                      "        if (body.firstName) {\r",
+                      "            pm.expect(json.firstName).to.eql(body.firstName);\r",
+                      "        }\r",
+                      "    }\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{applicantAccessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"firstName\": \"Minh\",\r\n  \"lastName\": \"Nguyễn\",\r\n  \"phone\": \"0901234567\",\r\n  \"bio\": \"Test update profile\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/api/user/me",
+                  "host": [
+                    "{{auth_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "me"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Upload Avatar",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "var json = pm.response.json();\r",
+                      "pm.test(\"Có avatarUrl trong response\", function () {\r",
+                      "    pm.expect(json).to.have.property(\"avatarUrl\");\r",
+                      "});\r",
+                      "pm.test(\"Có message success\", function () {\r",
+                      "    pm.expect(json.message).to.include(\"success\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{applicantAccessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "avatar",
+                      "type": "file",
+                      "uuid": "fe5649d5-4d35-4d58-b3ea-34ed6caca751",
+                      "src": "qa/postman/fixtures/avatar-test.svg"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/api/users/avatar",
+                  "host": [
+                    "{{auth_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "avatar"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ],
       "event": [
@@ -1073,84 +1074,6 @@
       "name": "Scholarships & Opportunities",
       "item": [
         {
-          "name": "Bookmarks",
-          "item": [
-            {
-              "name": "Add Bookmark",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Status 200 hoặc 201\", function () {\r",
-                      "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
-                      "});"
-                    ],
-                    "type": "text/javascript",
-                    "packages": {},
-                    "requests": {}
-                  }
-                }
-              ],
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{applicantAccessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [],
-                "url": {
-                  "raw": "{{base_url}}/api/bookmarks/{{opportunityId}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "bookmarks",
-                    "{{opportunityId}}"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Get My Bookmarks",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{applicantAccessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{base_url}}/api/bookmarks/my",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "bookmarks",
-                    "my"
-                  ]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
           "name": "Search Scholarships",
           "event": [
             {
@@ -1308,6 +1231,84 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Bookmarks",
+          "item": [
+            {
+              "name": "Add Bookmark",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status 200 hoặc 201\", function () {\r",
+                      "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{applicantAccessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/bookmarks/{{opportunityId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "bookmarks",
+                    "{{opportunityId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get My Bookmarks",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{applicantAccessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/bookmarks/my",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "bookmarks",
+                    "my"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         },
         {
           "name": "Get My Opportunities",
