@@ -36,3 +36,21 @@ services:
       test-network:
         aliases:
           - frontend-test
+
+  auth-service:
+    networks:
+      test-network:
+        aliases:
+          - auth-service-test
+
+  scholarship-service:
+    networks:
+      test-network:
+        aliases:
+          - scholarship-service-test
+
+  matching-service:
+    networks:
+      test-network:
+        aliases:
+          - matching-service-test
