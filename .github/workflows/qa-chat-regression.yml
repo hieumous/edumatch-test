@@ -1,0 +1,92 @@
+name: qa-chat-regression
+
+on:
+  workflow_dispatch:
+
+jobs:
+  chat-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      JIRA_ISSUE_KEY: EDUMATCH-58
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate dummy Firebase service account
+        run: |
+          mkdir -p backend-java/chat-service/src/main/resources
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/firebase-private.pem
+          FIREBASE_KEY=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' /tmp/firebase-private.pem)
+          cat > backend-java/chat-service/src/main/resources/firebase-adminsdk-key.json <<EOF
+          {
+            "type": "service_account",
+            "project_id": "edumatch-ci",
+            "private_key_id": "ci-key",
+            "private_key": "${FIREBASE_KEY}",
+            "client_email": "ci-bot@edumatch-ci.iam.gserviceaccount.com",
+            "client_id": "1234567890",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ci-bot%40edumatch-ci.iam.gserviceaccount.com"
+          }
+          EOF
+
+      - name: Start chat stack
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci-chat.yml up -d --build \
+            auth-db chat-db rabbitmq auth-service chat-service
+          docker compose -f docker-compose.yml -f docker-compose.ci-chat.yml ps
+
+      - name: Wait for module readiness
+        run: |
+          set -e
+          for i in $(seq 1 120); do
+            auth_code=$(curl --max-time 3 -s -o /dev/null -w "%{http_code}" \
+              -H "Content-Type: application/json" \
+              -d '{"username":"admin","password":"admin123"}' \
+              "http://localhost:8081/api/auth/signin" || true)
+            chat_code=$(curl --max-time 2 -s -o /dev/null -w "%{http_code}" \
+              "http://localhost:8083/api/notifications/unread-count" || true)
+            echo "try=$i auth=$auth_code chat=$chat_code"
+            if [ "$auth_code" = "200" ] && { [ "$chat_code" = "200" ] || [ "$chat_code" = "401" ] || [ "$chat_code" = "403" ]; }; then exit 0; fi
+            sleep 2
+          done
+          docker compose -f docker-compose.yml -f docker-compose.ci-chat.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.ci-chat.yml logs --no-color --tail=200 auth-service chat-service || true
+          exit 1
+
+      - name: Install Newman
+        run: npm install --no-fund --no-audit --global newman@latest
+
+      - name: Run chat regression
+        run: |
+          mkdir -p qa/reports/newman
+          newman run "qa/postman/EduMatch.full.regression.postman_collection.json" \
+            -e "qa/postman/Edumatch.chat.local.postman_environment.json" \
+            --folder "Auth" \
+            --folder "Chat & Notifications" \
+            --reporters cli,junit \
+            --reporter-junit-export "qa/reports/newman/chat-junit.xml"
+
+      - name: Comment result to Jira
+        if: always()
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: node "qa/scripts/jira_comment_from_junit.mjs" "qa/reports/newman/chat-junit.xml"
+
+      - name: Upload chat artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-chat-report
+          path: qa/reports/newman/chat-junit.xml
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci-chat.yml down -v

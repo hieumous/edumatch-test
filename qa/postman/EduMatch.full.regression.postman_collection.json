@@ -1711,7 +1711,10 @@
                   "pm.test(\"Có id và opportunityId\", function () {\r",
                   "    pm.expect(json).to.have.property(\"id\");\r",
                   "    pm.expect(json).to.have.property(\"opportunityId\");\r",
-                  "});"
+                  "});\r",
+                  "if (json.id != null) {\r",
+                  "    pm.environment.set(\"applicationId\", json.id);\r",
+                  "}"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -1799,7 +1802,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/applications/opportunity/1",
+              "raw": "{{base_url}}/api/applications/opportunity/{{opportunityId}}",
               "host": [
                 "{{base_url}}"
               ],
@@ -1807,7 +1810,7 @@
                 "api",
                 "applications",
                 "opportunity",
-                "1"
+                "{{opportunityId}}"
               ]
             }
           },
@@ -2297,16 +2300,82 @@
         {
           "name": "Recommendations For Applicant",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/recommendations/applicant/{{applicantId}}?limit=10&page=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations",
+                "applicant",
+                "{{applicantId}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
           },
           "response": []
         },
         {
           "name": "Recommendations For Opportunity",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/recommendations/opportunity/{{opportunityId}}?limit=10&page=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "recommendations",
+                "opportunity",
+                "{{opportunityId}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
           },
           "response": []
         }
