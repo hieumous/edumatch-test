@@ -18,6 +18,13 @@ Environment `Edumatch.local...` đã set:
 
 - `base_url = http://localhost:8080`
 
+Lưu ý:
+
+- Collection `EduMatch.local.smoke...` hiện được tối ưu để smoke ổn định bằng cách gọi trực tiếp:
+  - `auth-service` qua `http://localhost:8081`
+  - `scholarship-service` qua `http://localhost:8082`
+- Việc này giúp GitHub Actions smoke không bị phụ thuộc vào `api-gateway`.
+
 ### Cách chạy nhanh (Postman UI)
 
 1. Import collection `EduMatch.local.smoke...`

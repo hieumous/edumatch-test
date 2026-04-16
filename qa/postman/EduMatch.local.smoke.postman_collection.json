@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b42b0d5c-8a59-4f0a-a2ad-6c1d7b4c1a11",
     "name": "EduMatch (local) - Smoke",
-    "description": "Smoke API suite for EduMatch via API Gateway (local). Order: health -> login -> me -> scholarships search.",
+    "description": "Smoke API suite for EduMatch using direct service ports in CI/local. Order: auth health -> login -> me -> scholarships search.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -10,7 +10,7 @@
       "name": "Health",
       "item": [
         {
-          "name": "Gateway Health",
+          "name": "Auth Health",
           "event": [
             {
               "listen": "test",
@@ -27,9 +27,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/gateway/health",
-              "host": ["{{base_url}}"],
-              "path": ["gateway", "health"]
+              "raw": "http://localhost:8081/actuator/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["actuator", "health"]
             }
           },
           "response": []
@@ -65,8 +67,10 @@
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/signin",
-              "host": ["{{base_url}}"],
+              "raw": "http://localhost:8081/api/auth/signin",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
               "path": ["api", "auth", "signin"]
             }
           },
@@ -95,8 +99,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/auth/me",
-              "host": ["{{base_url}}"],
+              "raw": "http://localhost:8081/api/auth/me",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
               "path": ["api", "auth", "me"]
             }
           },
@@ -131,8 +137,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/scholarships?q=&page=0&size=10",
-              "host": ["{{base_url}}"],
+              "raw": "http://localhost:8082/api/scholarships?q=&page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
               "path": ["api", "scholarships"],
               "query": [
                 { "key": "q", "value": "" },

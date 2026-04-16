@@ -22,15 +22,10 @@ jobs:
 
       - name: Start Docker stack (minimal)
         run: |
-          # Bring up stubs first so nginx can resolve upstream hostnames on boot.
-          docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml up -d --build \
-            chat-service frontend
-
-          docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml up -d --build \
+          docker compose up -d --build \
             auth-db scholarship-db matching-db rabbitmq \
-            auth-service scholarship-service matching-service \
-            api-gateway
-          docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml ps
+            auth-service scholarship-service matching-service
+          docker compose ps
 
       - name: Wait for API readiness
         run: |
@@ -39,42 +34,43 @@ jobs:
             curl --max-time 2 -s -o /dev/null -w "%{http_code}" "$1" || true
           }
 
-          echo "Waiting for gateway health..."
+          echo "Waiting for auth-service health..."
           for i in $(seq 1 90); do
-            code=$(curl_code "http://localhost:8080/gateway/health")
-            echo "gateway/health: try=$i code=$code"
+            code=$(curl_code "http://localhost:8081/actuator/health")
+            echo "auth/health: try=$i code=$code"
             if [ "$code" = "200" ]; then break; fi
-            if [ $((i % 15)) -eq 0 ]; then docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml ps; fi
+            if [ $((i % 15)) -eq 0 ]; then docker compose ps; fi
             sleep 2
           done
 
-          code=$(curl_code "http://localhost:8080/gateway/health")
+          code=$(curl_code "http://localhost:8081/actuator/health")
           if [ "$code" != "200" ]; then
-            echo "Gateway not ready."
-            docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml ps
-            docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml logs --no-color --tail=200 api-gateway || true
+            echo "Auth service not ready."
+            docker compose ps
+            docker compose logs --no-color --tail=200 auth-service || true
             exit 1
           fi
 
-          echo "Waiting for auth-service via gateway (/api/auth/verify should return 401 when up)..."
+          echo "Waiting for auth API (/api/auth/verify should return 401 when up)..."
           for i in $(seq 1 90); do
-            code=$(curl_code "http://localhost:8080/api/auth/verify")
+            code=$(curl_code "http://localhost:8081/api/auth/verify")
             echo "api/auth/verify: try=$i code=$code"
             if [ "$code" = "401" ] || [ "$code" = "200" ]; then break; fi
-            if [ $((i % 15)) -eq 0 ]; then docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml ps; fi
+            if [ $((i % 15)) -eq 0 ]; then docker compose ps; fi
             sleep 2
           done
+
           echo "Waiting for scholarship public endpoint..."
           for i in $(seq 1 90); do
-            code=$(curl_code "http://localhost:8080/api/scholarships?page=0&size=1")
+            code=$(curl_code "http://localhost:8082/api/scholarships?page=0&size=1")
             echo "api/scholarships: try=$i code=$code"
             if [ "$code" = "200" ]; then exit 0; fi
-            if [ $((i % 15)) -eq 0 ]; then docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml ps; fi
+            if [ $((i % 15)) -eq 0 ]; then docker compose ps; fi
             sleep 2
           done
           echo "Services not ready in time."
-          docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml ps
-          docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml logs --no-color --tail=200 auth-service scholarship-service matching-service api-gateway || true
+          docker compose ps
+          docker compose logs --no-color --tail=200 auth-service scholarship-service matching-service || true
           exit 1
 
       - name: Install Newman
@@ -105,5 +101,5 @@ jobs:
 
       - name: Tear down Docker stack
         if: always()
-        run: docker compose -f docker-compose.yml -f docker-compose.ci-smoke.yml down -v
+        run: docker compose down -v
 
