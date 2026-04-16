@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 15
     env:
       # Target issue to write results to (not a secret).
-      JIRA_ISSUE_KEY: EADUMATCH-58
+      JIRA_ISSUE_KEY: EDUMATCH-58
     steps:
       - name: Checkout
         uses: actions/checkout@v4
