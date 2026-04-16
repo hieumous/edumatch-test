@@ -6,6 +6,7 @@ import com.example.jwt.example.exception.ResourceNotFoundException;
 import com.example.jwt.example.exception.BadRequestException;
 import com.example.jwt.example.model.Role;
 import com.example.jwt.example.model.User;
+import com.example.jwt.example.repository.OrganizationRepository;
 import com.example.jwt.example.repository.RoleRepository;
 import com.example.jwt.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuditLogService auditLogService;
@@ -63,6 +65,13 @@ public class UserService {
      */
     public User createEmployer(SignUpRequest request) {
         validateUserRequest(request);
+
+        if (request.getOrganizationId() == null) {
+            throw new BadRequestException("organizationId is required for employer creation");
+        }
+        if (!organizationRepository.existsById(request.getOrganizationId())) {
+            throw new BadRequestException("Organization not found for id: " + request.getOrganizationId());
+        }
 
         Role employerRole = roleRepository.findByName("ROLE_EMPLOYER")
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "name", "ROLE_EMPLOYER"));

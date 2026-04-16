@@ -60,7 +60,8 @@ public class AdminController {
             return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(500)
+            // Treat unexpected failures as client-visible errors for admin tooling/QA runs.
+            return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, "Error creating recruiter: " + e.getMessage()));
         }
     }

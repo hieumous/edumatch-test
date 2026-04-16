@@ -67,6 +67,7 @@ jobs:
             --folder "Register" \
             --folder "Applicant Login" \
             --folder "Login" \
+            --folder "Admin Create Organization" \
             --folder "Admin Create Employer" \
             --folder "Employer Login" \
             --folder "Refresh Token" \

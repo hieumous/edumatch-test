@@ -250,6 +250,10 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "const orgId = pm.environment.get('organizationId');\r",
+                  "if (!orgId || String(orgId).trim() === '') {\r",
+                  "  throw new Error('organizationId is empty. Run \"Admin Create Organization\" before \"Admin Create Employer\" (or include that folder in your Newman --folder list).');\r",
+                  "}\r",
                   "const suffix = (Date.now() % 100000).toString();\r",
                   "pm.environment.set('employerUsername', `emp${suffix}`);\r",
                   "pm.environment.set('employerEmail', `emp${suffix}@example.com`);\r",
