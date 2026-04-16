@@ -1,9 +1,7 @@
 import fs from "node:fs";
 
-function requiredEnv(name) {
-  const v = process.env[name];
-  if (!v) throw new Error(`Missing env ${name}`);
-  return v;
+function getEnv(name) {
+  return process.env[name]?.trim() || "";
 }
 
 function parseJUnitSummary(xml) {
@@ -63,10 +61,21 @@ async function jiraComment({ baseUrl, email, apiToken, issueKey, body }) {
 
 const junitPath = process.argv[2] ?? "qa/reports/newman/junit.xml";
 
-const baseUrl = requiredEnv("JIRA_BASE_URL");
-const email = requiredEnv("JIRA_EMAIL");
-const apiToken = requiredEnv("JIRA_API_TOKEN");
-const issueKey = requiredEnv("JIRA_ISSUE_KEY");
+const baseUrl = getEnv("JIRA_BASE_URL");
+const email = getEnv("JIRA_EMAIL");
+const apiToken = getEnv("JIRA_API_TOKEN");
+const issueKey = getEnv("JIRA_ISSUE_KEY");
+
+if (!baseUrl || !email || !apiToken || !issueKey) {
+  console.log("Skipping Jira comment because one or more required env vars are missing.");
+  console.log(JSON.stringify({
+    hasBaseUrl: Boolean(baseUrl),
+    hasEmail: Boolean(email),
+    hasApiToken: Boolean(apiToken),
+    hasIssueKey: Boolean(issueKey),
+  }));
+  process.exit(0);
+}
 
 const runUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
