@@ -193,6 +193,56 @@
           "response": []
         },
         {
+          "name": "Admin Create Organization",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = (Date.now() % 100000).toString();\r",
+                  "pm.environment.set('orgName', `Org ${suffix}`);\r",
+                  "pm.environment.set('orgEmail', `org${suffix}@example.com`);\r",
+                  "pm.environment.set('orgWebsite', `https://org${suffix}.example.com`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Has id\", function () { pm.expect(json).to.have.property('id'); });\r",
+                  "if (json.id != null) pm.environment.set('organizationId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminAccessToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{orgName}}\",\r\n  \"description\": \"Test org\",\r\n  \"organizationType\": \"UNIVERSITY\",\r\n  \"website\": \"{{orgWebsite}}\",\r\n  \"email\": \"{{orgEmail}}\",\r\n  \"phone\": \"0900000000\",\r\n  \"address\": \"Hanoi\",\r\n  \"country\": \"VN\",\r\n  \"city\": \"Hanoi\",\r\n  \"logoUrl\": null\r\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/organizations",
+              "host": [ "{{auth_base_url}}" ],
+              "path": [ "api", "organizations" ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Admin Create Employer",
           "event": [
             {
@@ -230,7 +280,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"username\": \"{{employerUsername}}\",\r\n  \"email\": \"{{employerEmail}}\",\r\n  \"password\": \"{{employerPassword}}\",\r\n  \"firstName\": \"Nhà\",\r\n  \"lastName\": \"Tuyển dụng\",\r\n  \"sex\": \"MALE\",\r\n  \"organizationId\": null\r\n}",
+              "raw": "{\r\n  \"username\": \"{{employerUsername}}\",\r\n  \"email\": \"{{employerEmail}}\",\r\n  \"password\": \"{{employerPassword}}\",\r\n  \"firstName\": \"Nhà\",\r\n  \"lastName\": \"Tuyển dụng\",\r\n  \"sex\": \"MALE\",\r\n  \"organizationId\": {{organizationId}}\r\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
@@ -1494,6 +1544,52 @@
               "path": [
                 "api",
                 "opportunities"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Approve Opportunity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"status\": \"APPROVED\" }",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/opportunities/{{opportunityId}}/moderate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "opportunities",
+                "{{opportunityId}}",
+                "moderate"
               ]
             }
           },
