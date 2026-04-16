@@ -59,6 +59,9 @@ public class AdminController {
         } catch (BadRequestException e) {
             return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(new ApiResponse(false, "Error creating recruiter: " + e.getMessage()));
         }
     }
     @PostMapping("/create-user")
