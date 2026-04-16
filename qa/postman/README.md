@@ -24,6 +24,7 @@ Lưu ý:
   - `auth-service` qua `http://localhost:8081`
   - `scholarship-service` qua `http://localhost:8082`
 - Việc này giúp GitHub Actions smoke không bị phụ thuộc vào `api-gateway`.
+- Health request trong smoke collection dùng `scholarship-service` endpoint `GET /debug/health` vì endpoint actuator của auth hiện không ổn định trên CI.
 
 ### Cách chạy nhanh (Postman UI)
 

@@ -33,37 +33,34 @@ jobs:
           curl_code () {
             curl --max-time 2 -s -o /dev/null -w "%{http_code}" "$1" || true
           }
+          post_json_code () {
+            curl --max-time 3 -s -o /dev/null -w "%{http_code}" \
+              -H "Content-Type: application/json" \
+              -d "$2" \
+              "$1" || true
+          }
 
-          echo "Waiting for auth-service health..."
+          echo "Waiting for auth login endpoint..."
           for i in $(seq 1 90); do
-            code=$(curl_code "http://localhost:8081/actuator/health")
-            echo "auth/health: try=$i code=$code"
+            code=$(post_json_code "http://localhost:8081/api/auth/signin" '{"username":"admin","password":"admin123"}')
+            echo "auth/signin: try=$i code=$code"
             if [ "$code" = "200" ]; then break; fi
             if [ $((i % 15)) -eq 0 ]; then docker compose ps; fi
             sleep 2
           done
 
-          code=$(curl_code "http://localhost:8081/actuator/health")
+          code=$(post_json_code "http://localhost:8081/api/auth/signin" '{"username":"admin","password":"admin123"}')
           if [ "$code" != "200" ]; then
-            echo "Auth service not ready."
+            echo "Auth login not ready."
             docker compose ps
             docker compose logs --no-color --tail=200 auth-service || true
             exit 1
           fi
 
-          echo "Waiting for auth API (/api/auth/verify should return 401 when up)..."
+          echo "Waiting for scholarship debug health..."
           for i in $(seq 1 90); do
-            code=$(curl_code "http://localhost:8081/api/auth/verify")
-            echo "api/auth/verify: try=$i code=$code"
-            if [ "$code" = "401" ] || [ "$code" = "200" ]; then break; fi
-            if [ $((i % 15)) -eq 0 ]; then docker compose ps; fi
-            sleep 2
-          done
-
-          echo "Waiting for scholarship public endpoint..."
-          for i in $(seq 1 90); do
-            code=$(curl_code "http://localhost:8082/api/scholarships?page=0&size=1")
-            echo "api/scholarships: try=$i code=$code"
+            code=$(curl_code "http://localhost:8082/debug/health")
+            echo "scholarship/debug/health: try=$i code=$code"
             if [ "$code" = "200" ]; then exit 0; fi
             if [ $((i % 15)) -eq 0 ]; then docker compose ps; fi
             sleep 2

@@ -10,7 +10,7 @@
       "name": "Health",
       "item": [
         {
-          "name": "Auth Health",
+          "name": "Scholarship Debug Health",
           "event": [
             {
               "listen": "test",
@@ -27,11 +27,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/actuator/health",
+              "raw": "http://localhost:8082/debug/health",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8081",
-              "path": ["actuator", "health"]
+              "port": "8082",
+              "path": ["debug", "health"]
             }
           },
           "response": []
