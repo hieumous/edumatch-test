@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      JIRA_ISSUE_KEY: EDUMATCH-58
+      JIRA_ISSUE_KEY: EDUMATCH-63
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
