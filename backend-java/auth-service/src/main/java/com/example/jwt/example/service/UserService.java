@@ -223,6 +223,7 @@ public class UserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
+                .sex(request.getSex())
                 .enabled(true)
                 .roles(Collections.singleton(role))
                 .build();

@@ -1,0 +1,1368 @@
+{
+  "info": {
+    "_postman_id": "a1d0f0c3-5d49-4c39-a579-0f8d4f7d7e41",
+    "name": "EduMatch Scholarship Regression",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 Register Applicant",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = (Date.now() % 1000).toString().padStart(3, '0');",
+              "const username6 = `u${suffix}x${Math.floor(Math.random() * 10)}`;",
+              "pm.environment.set('signupUsername', username6);",
+              "pm.environment.set('signupEmail', `${username6}@example.com`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is valid', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);",
+              "});",
+              "pm.test('Response is JSON', function () {",
+              "  pm.response.to.be.json;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{signupUsername}}\",\n  \"email\": \"{{signupEmail}}\",\n  \"password\": \"123456\",\n  \"firstName\": \"Minh\",\n  \"lastName\": \"Nguyen\",\n  \"sex\": \"MALE\"\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/signup",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "02 Applicant Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('applicantAccessToken', json.accessToken);",
+              "pm.environment.set('applicantRefreshToken', json.refreshToken);",
+              "pm.test('Applicant tokens exist', function () {",
+              "  pm.expect(json.accessToken).to.be.a('string').and.not.empty;",
+              "  pm.expect(json.refreshToken).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{signupUsername}}\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/signin",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "signin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "03 Admin Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('adminAccessToken', json.accessToken);",
+              "pm.environment.set('adminRefreshToken', json.refreshToken);",
+              "pm.test('Admin tokens exist', function () {",
+              "  pm.expect(json.accessToken).to.be.a('string').and.not.empty;",
+              "  pm.expect(json.refreshToken).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/signin",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "signin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "04 Refresh Admin Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Refresh response has access token', function () {",
+              "  pm.expect(json.accessToken).to.be.a('string').and.not.empty;",
+              "  pm.expect(json.refreshToken).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{adminRefreshToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/refresh",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "refresh"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "05 Verify Admin Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response is JSON', function () {",
+              "  pm.response.to.be.json;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/verify",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "verify"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "06 Admin Create Organization",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = `${Date.now()}${Math.floor(Math.random() * 1000)}`;",
+              "pm.environment.set('orgName', `Org ${suffix}`);",
+              "pm.environment.set('orgEmail', `org${suffix}@example.com`);",
+              "pm.environment.set('orgWebsite', `https://org${suffix}.example.com`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('organizationId', json.id);",
+              "pm.test('Organization id exists', function () {",
+              "  pm.expect(json.id).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{orgName}}\",\n  \"description\": \"QA organization\",\n  \"organizationType\": \"UNIVERSITY\",\n  \"website\": \"{{orgWebsite}}\",\n  \"email\": \"{{orgEmail}}\",\n  \"phone\": \"0900000000\",\n  \"address\": \"Hanoi\",\n  \"country\": \"VN\",\n  \"city\": \"Hanoi\",\n  \"logoUrl\": null\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/organizations",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "organizations"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "07 Admin Create Employer",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const orgId = pm.environment.get('organizationId');",
+              "if (!orgId) {",
+              "  throw new Error('organizationId is missing');",
+              "}",
+              "const suffix = `${Date.now().toString(36)}${Math.floor(Math.random() * 1296).toString(36).padStart(2, '0')}`;",
+              "pm.environment.set('employerUsername', `emp${suffix}`.substring(0, 20));",
+              "pm.environment.set('employerEmail', `emp${suffix}@example.com`);",
+              "pm.environment.set('employerPassword', 'password123');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Employer creation succeeded', function () {",
+              "  pm.expect(json.success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{employerUsername}}\",\n  \"email\": \"{{employerEmail}}\",\n  \"password\": \"{{employerPassword}}\",\n  \"firstName\": \"Employer\",\n  \"lastName\": \"QA\",\n  \"sex\": \"MALE\",\n  \"organizationId\": {{organizationId}}\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/admin/create-employer",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "create-employer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "08 Employer Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('employerAccessToken', json.accessToken);",
+              "pm.environment.set('employerRefreshToken', json.refreshToken);",
+              "pm.test('Employer tokens exist', function () {",
+              "  pm.expect(json.accessToken).to.be.a('string').and.not.empty;",
+              "  pm.expect(json.refreshToken).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{employerUsername}}\",\n  \"password\": \"{{employerPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/signin",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "signin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "09 Get Me (Auth)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('employerUserId', String(json.id));",
+              "pm.test('Employer user id exists', function () {",
+              "  pm.expect(json.id).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/me",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10 Create Opportunity",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const now = new Date();",
+              "const suffix = `${Date.now()}${Math.floor(Math.random() * 1000)}`;",
+              "const deadline = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000);",
+              "const start = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);",
+              "const end = new Date(now.getTime() + 240 * 24 * 60 * 60 * 1000);",
+              "const toDate = (value) => value.toISOString().slice(0, 10);",
+              "pm.environment.set('opportunityTitle', `QA Scholarship ${suffix}`);",
+              "pm.environment.set('updatedOpportunityTitle', `QA Scholarship Updated ${suffix}`);",
+              "pm.environment.set('applicationDeadline', toDate(deadline));",
+              "pm.environment.set('startDate', toDate(start));",
+              "pm.environment.set('endDate', toDate(end));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('opportunityId', json.id);",
+              "pm.test('Opportunity id exists', function () {",
+              "  pm.expect(json.id).to.exist;",
+              "  pm.expect(json.title).to.eql(pm.environment.get('opportunityTitle'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"{{opportunityTitle}}\",\n  \"fullDescription\": \"Regression scholarship created by Newman.\",\n  \"applicationDeadline\": \"{{applicationDeadline}}\",\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"scholarshipAmount\": 5000000,\n  \"minGpa\": 3.0,\n  \"studyMode\": \"FULL_TIME\",\n  \"level\": \"UNDERGRADUATE\",\n  \"isPublic\": true,\n  \"contactEmail\": \"contact@test.com\",\n  \"website\": \"https://example.com\",\n  \"tags\": [\"Tech\", \"Scholarship\"],\n  \"requiredSkills\": [\"Java\", \"English\"]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/opportunities",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "opportunities"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11 Admin Approve Opportunity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Opportunity approved', function () {",
+              "  pm.expect(json.id).to.eql(Number(pm.environment.get('opportunityId')));",
+              "  pm.expect(json.moderationStatus).to.eql('APPROVED');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"APPROVED\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/opportunities/{{opportunityId}}/moderate",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "opportunities",
+            "{{opportunityId}}",
+            "moderate"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12 Search Scholarships",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Response has content', function () {",
+              "  pm.expect(json).to.have.property('content');",
+              "  pm.expect(json.content).to.be.an('array');",
+              "});",
+              "pm.test('Created opportunity appears in search result', function () {",
+              "  const targetId = Number(pm.environment.get('opportunityId'));",
+              "  const ids = (json.content || []).map(item => item && item.id);",
+              "  pm.expect(ids).to.include(targetId);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scholarships?q={{opportunityTitle}}&page=0&size=10",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scholarships"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "{{opportunityTitle}}"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "13 Get Scholarship By Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "const data = json.opportunity || json;",
+              "pm.test('Opportunity detail matches requested id', function () {",
+              "  pm.expect(data.id).to.eql(Number(pm.environment.get('opportunityId')));",
+              "  pm.expect(data.title).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{applicantAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scholarships/{{opportunityId}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scholarships",
+            "{{opportunityId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "14 Add Bookmark",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200 or 201', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{applicantAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/bookmarks/{{opportunityId}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "bookmarks",
+            "{{opportunityId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "15 Get My Bookmarks",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const list = pm.response.json();",
+              "pm.test('Bookmark list contains created opportunity', function () {",
+              "  pm.expect(list).to.be.an('array');",
+              "  const ids = list.map(item => item && item.opportunity && item.opportunity.id);",
+              "  pm.expect(ids).to.include(Number(pm.environment.get('opportunityId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{applicantAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/bookmarks/my",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "bookmarks",
+            "my"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "16 Get My Opportunities",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const list = pm.response.json();",
+              "const employerId = Number(pm.environment.get('employerUserId'));",
+              "pm.test('Response is an array', function () {",
+              "  pm.expect(list).to.be.an('array');",
+              "});",
+              "pm.test('Created opportunity belongs to current employer', function () {",
+              "  const ids = list.map(item => item && item.id);",
+              "  pm.expect(ids).to.include(Number(pm.environment.get('opportunityId')));",
+              "  list.forEach(item => pm.expect(item.creatorUserId).to.eql(employerId));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/opportunities/my",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "opportunities",
+            "my"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "17 Update Opportunity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Opportunity was updated without changing creator', function () {",
+              "  pm.expect(json.id).to.eql(Number(pm.environment.get('opportunityId')));",
+              "  pm.expect(json.title).to.eql(pm.environment.get('updatedOpportunityTitle'));",
+              "  pm.expect(String(json.creatorUserId)).to.eql(pm.environment.get('employerUserId'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"{{updatedOpportunityTitle}}\",\n  \"fullDescription\": \"Regression scholarship updated by Newman.\",\n  \"applicationDeadline\": \"{{applicationDeadline}}\",\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"scholarshipAmount\": 5500000,\n  \"minGpa\": 3.2,\n  \"studyMode\": \"FULL_TIME\",\n  \"level\": \"UNDERGRADUATE\",\n  \"isPublic\": true,\n  \"contactEmail\": \"contact@test.com\",\n  \"website\": \"https://example.com\",\n  \"tags\": [\"Tech\", \"Scholarship\"],\n  \"requiredSkills\": [\"Java\", \"English\"]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/opportunities/{{opportunityId}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "opportunities",
+            "{{opportunityId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "18 Get Opportunity By Id (ADMIN)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "const data = json.opportunity || json;",
+              "pm.test('Admin detail response is correct', function () {",
+              "  pm.expect(data.id).to.eql(Number(pm.environment.get('opportunityId')));",
+              "  pm.expect(json.matchScore).to.be.null;",
+              "  pm.expect(data.creatorUserId).to.eql(Number(pm.environment.get('employerUserId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/opportunities/{{opportunityId}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "opportunities",
+            "{{opportunityId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "19 Create Application",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('applicationId', json.id);",
+              "pm.test('Application is linked to target opportunity', function () {",
+              "  pm.expect(json.id).to.exist;",
+              "  pm.expect(json.opportunityId).to.eql(Number(pm.environment.get('opportunityId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{applicantAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"opportunityId\": {{opportunityId}},\n  \"coverLetter\": \"I would like to join this program.\",\n  \"motivation\": \"Interested in research and learning.\",\n  \"additionalInfo\": \"\",\n  \"gpa\": 3.5,\n  \"phone\": \"0901234567\",\n  \"documents\": []\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/applications",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "applications"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "20 Get My Applications",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const list = pm.response.json();",
+              "pm.test('Applicant sees created application', function () {",
+              "  pm.expect(list).to.be.an('array');",
+              "  const ids = list.map(item => item && item.id);",
+              "  pm.expect(ids).to.include(Number(pm.environment.get('applicationId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{applicantAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/applications/my",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "applications",
+            "my"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "21 Get Applications For Opportunity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const list = pm.response.json();",
+              "pm.test('Employer sees created application', function () {",
+              "  pm.expect(list).to.be.an('array');",
+              "  const ids = list.map(item => item && item.id);",
+              "  pm.expect(ids).to.include(Number(pm.environment.get('applicationId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/applications/opportunity/{{opportunityId}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "applications",
+            "opportunity",
+            "{{opportunityId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "22 Get Recent Applications",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const list = pm.response.json();",
+              "pm.test('Recent applications is an array', function () {",
+              "  pm.expect(list).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/applications/recent",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "applications",
+            "recent"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "23 Update Application Status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Application status updated', function () {",
+              "  pm.expect(json.id).to.eql(Number(pm.environment.get('applicationId')));",
+              "  pm.expect(json.status).to.eql('APPROVED');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"APPROVED\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/applications/{{applicationId}}/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "applications",
+            "{{applicationId}}",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "24 Opportunities Stats",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Stats include expected fields', function () {",
+              "  pm.expect(json).to.have.property('totalScholarships');",
+              "  pm.expect(json).to.have.property('totalApplications');",
+              "  pm.expect(json.totalScholarships).to.be.at.least(0);",
+              "  pm.expect(json.totalApplications).to.be.at.least(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/opportunities/stats",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "opportunities",
+            "stats"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "25 Opportunities Analytics",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Analytics response has expected structure', function () {",
+              "  pm.expect(json).to.have.property('overview');",
+              "  pm.expect(json).to.have.property('scholarshipPerformance');",
+              "  pm.expect(json).to.have.property('monthlyStats');",
+              "  pm.expect(json).to.have.property('statusDistribution');",
+              "  pm.expect(json.monthlyStats).to.have.lengthOf(6);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/opportunities/analytics",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "opportunities",
+            "analytics"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "26 Delete Opportunity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', function () {",
+              "  pm.response.to.have.status(204);",
+              "});",
+              "pm.test('Response body is empty', function () {",
+              "  pm.expect(pm.response.text()).to.eql('');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/opportunities/{{opportunityId}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "opportunities",
+            "{{opportunityId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

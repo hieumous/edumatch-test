@@ -62,20 +62,8 @@ jobs:
       - name: Run scholarship/application regression
         run: |
           mkdir -p qa/reports/newman
-          newman run "qa/postman/EduMatch.full.regression.postman_collection.json" \
+          newman run "qa/postman/EduMatch.scholarship.regression.postman_collection.json" \
             -e "qa/postman/Edumatch.scholarship.local.postman_environment.json" \
-            --folder "Register" \
-            --folder "Applicant Login" \
-            --folder "Login" \
-            --folder "Admin Create Organization" \
-            --folder "Admin Create Employer" \
-            --folder "Employer Login" \
-            --folder "Refresh Token" \
-            --folder "Verify Token" \
-            --folder "Get Me (Auth)" \
-            --folder "User" \
-            --folder "Scholarships & Opportunities" \
-            --folder "Applications" \
             --reporters cli,junit \
             --reporter-junit-export "qa/reports/newman/scholarship-junit.xml"
 
