@@ -680,10 +680,10 @@
               "  pm.response.to.have.status(200);",
               "});",
               "const json = pm.response.json();",
-              "const data = json.opportunity || json;",
+              "const opportunityDetail = json.opportunity || json;",
               "pm.test('Opportunity detail matches requested id', function () {",
-              "  pm.expect(data.id).to.eql(Number(pm.environment.get('opportunityId')));",
-              "  pm.expect(data.title).to.be.a('string').and.not.empty;",
+              "  pm.expect(opportunityDetail.id).to.eql(Number(pm.environment.get('opportunityId')));",
+              "  pm.expect(opportunityDetail.title).to.be.a('string').and.not.empty;",
               "});"
             ]
           }
@@ -927,11 +927,11 @@
               "  pm.response.to.have.status(200);",
               "});",
               "const json = pm.response.json();",
-              "const data = json.opportunity || json;",
+              "const adminOpportunityDetail = json.opportunity || json;",
               "pm.test('Admin detail response is correct', function () {",
-              "  pm.expect(data.id).to.eql(Number(pm.environment.get('opportunityId')));",
+              "  pm.expect(adminOpportunityDetail.id).to.eql(Number(pm.environment.get('opportunityId')));",
               "  pm.expect(json.matchScore).to.be.null;",
-              "  pm.expect(data.creatorUserId).to.eql(Number(pm.environment.get('employerUserId')));",
+              "  pm.expect(adminOpportunityDetail.creatorUserId).to.eql(Number(pm.environment.get('employerUserId')));",
               "});"
             ]
           }
