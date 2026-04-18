@@ -101,6 +101,7 @@
                   "pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
                   "var json = pm.response.json();\r",
                   "if (json.accessToken) pm.environment.set(\"applicantAccessToken\", json.accessToken);\r",
+                  "if (json.accessToken) pm.environment.set(\"accessToken\", json.accessToken);\r",
                   "if (json.refreshToken) pm.environment.set(\"applicantRefreshToken\", json.refreshToken);\r",
                   "\r",
                   "function decodeJwtPayload(token) {\r",
