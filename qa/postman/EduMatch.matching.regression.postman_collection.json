@@ -1,0 +1,375 @@
+{
+  "info": {
+    "_postman_id": "a6e8fa4e-5da7-412d-b6ad-a6e1cd077cf2",
+    "name": "EduMatch Matching Regression",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 Register Applicant",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = (Date.now() % 1000).toString().padStart(3, '0');",
+              "const username6 = `u${suffix}x${Math.floor(Math.random() * 10)}`;",
+              "pm.environment.set('signupUsername', username6);",
+              "pm.environment.set('signupEmail', `${username6}@example.com`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is valid', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);",
+              "});",
+              "pm.test('Response is JSON', function () {",
+              "  pm.response.to.be.json;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{signupUsername}}\",\n  \"email\": \"{{signupEmail}}\",\n  \"password\": \"123456\",\n  \"firstName\": \"Matching\",\n  \"lastName\": \"Applicant\",\n  \"sex\": \"MALE\"\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/signup",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "02 Applicant Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('accessToken', json.accessToken);",
+              "pm.environment.set('refreshToken', json.refreshToken);",
+              "pm.test('Applicant tokens exist', function () {",
+              "  pm.expect(json.accessToken).to.be.a('string').and.not.empty;",
+              "  pm.expect(json.refreshToken).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{signupUsername}}\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{auth_base_url}}/api/auth/signin",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "signin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "03 Get User Me",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('userId', String(json.id));",
+              "pm.environment.set('applicantId', String(json.id));",
+              "pm.test('Applicant id exists', function () {",
+              "  pm.expect(json.id).to.exist;",
+              "  pm.expect(json.username).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_base_url}}/api/user/me",
+          "host": [
+            "{{auth_base_url}}"
+          ],
+          "path": [
+            "api",
+            "user",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "04 Match Score",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Response has overallScore', function () {",
+              "  pm.expect(json).to.have.property('overallScore');",
+              "  pm.expect(json).to.have.property('breakdown');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"applicantId\": \"{{applicantId}}\",\n  \"opportunityId\": \"{{opportunityId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/match/score",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "match",
+            "score"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "05 Batch Scores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Response is a JSON object', function () {",
+              "  pm.expect(json).to.be.an('object');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"applicantId\": \"{{applicantId}}\",\n  \"opportunityIds\": [\"{{opportunityId}}\", \"2\", \"3\"]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matching/batch-scores",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "matching",
+            "batch-scores"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "06 Recommendations For Applicant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Applicant recommendations response structure', function () {",
+              "  pm.expect(json).to.have.property('metadata');",
+              "  pm.expect(json).to.have.property('data');",
+              "  pm.expect(json.data).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/recommendations/applicant/{{applicantId}}?limit=10&page=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "recommendations",
+            "applicant",
+            "{{applicantId}}"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "07 Recommendations For Opportunity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Opportunity recommendations response structure', function () {",
+              "  pm.expect(json).to.have.property('metadata');",
+              "  pm.expect(json).to.have.property('data');",
+              "  pm.expect(json.data).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/recommendations/opportunity/{{opportunityId}}?limit=10&page=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "recommendations",
+            "opportunity",
+            "{{opportunityId}}"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
