@@ -2425,6 +2425,60 @@
           "response": []
         },
         {
+          "name": "Seed notification (contract test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });\r",
+                  "var json = pm.response.json();\r",
+                  "pm.test(\"Có id\", function () { pm.expect(json).to.have.property(\"id\"); });\r",
+                  "if (json.id != null) pm.environment.set(\"notificationId\", String(json.id));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/notifications/contract-seed",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "contract-seed"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Mark Notification Read",
           "event": [
             {

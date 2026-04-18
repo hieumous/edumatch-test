@@ -8,5 +8,6 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       APP_JWT_SECRET: EduMatch_Super_Secret_Key_!@#_DoNotShare_!@#
       APP_FIREBASE_SDK_PATH: classpath:firebase-adminsdk-key.json
+      APP_CONTRACT_SEED_ENABLED: "true"
       SPRING_APPLICATION_JSON: >
         {"app":{"services":{"auth-service":{"url":"http://auth-service:8081"}}}}

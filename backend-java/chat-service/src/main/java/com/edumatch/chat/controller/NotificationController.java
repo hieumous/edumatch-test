@@ -4,6 +4,7 @@ import com.edumatch.chat.model.Notification;
 import com.edumatch.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,9 @@ public class NotificationController {
 
     private final ChatService chatService; // Sử dụng lại ChatService để lấy UserID
 
+    @Value("${app.contract-seed-enabled:false}")
+    private boolean contractSeedEnabled;
+
     /**
      * API: GET /api/notifications
      * Mục tiêu: Lấy danh sách thông báo đã lưu trong DB cho user.
@@ -31,6 +35,19 @@ public class NotificationController {
         // Lấy thông báo (Logic nằm trong ChatService)
         Page<Notification> notifications = chatService.getMyNotifications(pageable, authentication);
         return ResponseEntity.ok(notifications);
+    }
+
+    /**
+     * POST /api/notifications/contract-seed — tạo một bản ghi thông báo chưa đọc cho user đang đăng nhập.
+     * Bật bằng {@code app.contract-seed-enabled=true} (CI / môi trường test).
+     */
+    @PostMapping("/contract-seed")
+    public ResponseEntity<Notification> seedContractTestNotification(Authentication authentication) {
+        if (!contractSeedEnabled) {
+            return ResponseEntity.notFound().build();
+        }
+        Notification saved = chatService.createContractTestNotification(authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     /**

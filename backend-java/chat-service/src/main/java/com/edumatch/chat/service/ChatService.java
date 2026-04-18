@@ -346,6 +346,26 @@ public class ChatService {
     }
 
     /**
+     * Tạo một thông báo chưa đọc cho user hiện tại (dùng trong contract test khi không có RabbitMQ events).
+     */
+    @Transactional
+    public Notification createContractTestNotification(Authentication authentication) {
+        UserDetailDto user = getUserDetailsFromAuthService(
+                authentication.getName(),
+                (String) authentication.getCredentials()
+        );
+        Notification notification = Notification.builder()
+                .userId(user.getId())
+                .title("Contract test")
+                .body("Seed notification for API contract tests")
+                .type("CONTRACT_TEST")
+                .referenceId("newman")
+                .isRead(false)
+                .build();
+        return notificationRepository.save(notification);
+    }
+
+    /**
      * (Logic cho API: PATCH /api/notifications/{id}/read)
      * Đánh dấu thông báo là đã đọc
      * Admin có thể đánh dấu đọc cả admin notifications (userId = -1)
