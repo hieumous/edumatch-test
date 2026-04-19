@@ -1,3 +1,4 @@
+
 package com.edumatch.scholarship.config;
 
 import com.edumatch.scholarship.security.JwtAccessDeniedHandler;

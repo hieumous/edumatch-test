@@ -46,7 +46,7 @@ public class JwtTokenProvider {
 
         // Lấy danh sách quyền (roles) từ token
         Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("roles").toString().split(","))
+                Arrays.stream(claims.get("roles").toString().split(",")) 
                         .filter(auth -> !auth.trim().isEmpty())
                         .map(String::trim)
                         .map(SimpleGrantedAuthority::new)

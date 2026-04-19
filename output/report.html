@@ -1,0 +1,3098 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeceptJS Test Report v3.7.8</title>
+  <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+.report-header {
+    background: #2c3e50;
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.report-header h1 {
+    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+}
+
+.report-meta {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.report-meta span {
+    margin: 0 1rem;
+}
+
+.report-content {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.stats-section, .tests-section, .retries-section, .filters-section, .history-section, .system-info-section, .test-performance-section {
+    background: white;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.stats-section h2, .tests-section h2, .retries-section h2, .filters-section h2, .history-section h2, .test-performance-section h2 {
+    background: #34495e;
+    color: white;
+    padding: 1rem;
+    margin: 0;
+}
+
+.stats-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 150px;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 4px;
+    color: white;
+}
+
+.stat-card.total { background: #3498db; }
+.stat-card.passed { background: #27ae60; }
+.stat-card.failed { background: #e74c3c; }
+.stat-card.pending { background: #f39c12; }
+.stat-card.flaky { background: #e67e22; }
+.stat-card.artifacts { background: #9b59b6; }
+
+.metrics-summary {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin: 1rem 0;
+    font-size: 1rem;
+}
+
+.metrics-summary span {
+    color: #34495e;
+}
+
+.stat-card h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.pie-chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    background: white;
+    margin: 1rem 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#statsChart {
+    max-width: 100%;
+    height: auto;
+}
+
+.feature-group {
+    margin-bottom: 2.5rem;
+    border: 2px solid #3498db;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.feature-group-title {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    padding: 1.2rem 1.5rem;
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.feature-group-title:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+}
+
+.feature-group-title .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.feature-group-title .toggle-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.feature-tests {
+    padding: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.feature-tests.collapsed {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.test-item {
+    border-bottom: 1px solid #eee;
+    margin: 0;
+}
+
+.test-item:last-child {
+    border-bottom: none;
+}
+
+.test-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.test-header:hover {
+    background-color: #f8f9fa;
+}
+
+.test-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.test-meta-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.test-status {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.test-status.passed { color: #27ae60; }
+.test-status.failed { color: #e74c3c; }
+.test-status.pending { color: #f39c12; }
+.test-status.skipped { color: #95a5a6; }
+
+.test-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.test-feature {
+    background: #ecf0f1;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #34495e;
+}
+
+.test-uid {
+    background: #e8f4fd;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: #2980b9;
+    font-family: monospace;
+}
+
+.retry-badge {
+    background: #f39c12;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.worker-badge {
+    background: #16a085;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+/* Different colors for each worker index */
+.worker-badge.worker-0 {
+    background: #3498db; /* Blue */
+}
+
+.worker-badge.worker-1 {
+    background: #e74c3c; /* Red */
+}
+
+.worker-badge.worker-2 {
+    background: #2ecc71; /* Green */
+}
+
+.worker-badge.worker-3 {
+    background: #f39c12; /* Orange */
+}
+
+.worker-badge.worker-4 {
+    background: #9b59b6; /* Purple */
+}
+
+.worker-badge.worker-5 {
+    background: #1abc9c; /* Turquoise */
+}
+
+.worker-badge.worker-6 {
+    background: #e67e22; /* Carrot */
+}
+
+.worker-badge.worker-7 {
+    background: #34495e; /* Dark Blue-Gray */
+}
+
+.worker-badge.worker-8 {
+    background: #16a085; /* Teal */
+}
+
+.worker-badge.worker-9 {
+    background: #c0392b; /* Dark Red */
+}
+
+.test-duration {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2c3e50;
+    background: #ecf0f1;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.test-details {
+    display: none;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.error-message {
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.error-message pre {
+    color: #c0392b;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.steps-section, .artifacts-section, .hooks-section {
+    margin-top: 1rem;
+}
+
+.steps-section h4, .artifacts-section h4, .hooks-section h4 {
+    color: #34495e;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.hook-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.75rem;
+    border: 1px solid #ecf0f1;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    background: #fafafa;
+}
+
+.hook-item:last-child {
+    margin-bottom: 0;
+}
+
+.hook-status {
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+}
+
+.hook-status.passed { color: #27ae60; }
+.hook-status.failed { color: #e74c3c; }
+
+.hook-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.hook-title {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.hook-duration {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+.hook-location, .hook-context {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.hook-error {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 4px;
+    color: #c0392b;
+    font-size: 0.8rem;
+}
+
+.step-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ecf0f1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-height: 2rem;
+}
+
+.step-item:last-child {
+    border-bottom: none;
+}
+
+.step-status {
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+}
+
+.step-status.success { color: #27ae60; }
+.step-status.failed { color: #e74c3c; }
+
+.step-title {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+    margin-right: 0.5rem;
+    min-width: 0;
+}
+
+.step-duration {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+}
+
+.artifacts-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.artifact-image {
+    max-width: 200px;
+    max-height: 150px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.artifact-image:hover {
+    transform: scale(1.05);
+}
+
+.artifact-item {
+    background: #ecf0f1;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    cursor: pointer;
+}
+
+.modal img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 4px;
+}
+
+/* Enhanced screenshot styles for failed tests */
+.screenshots-section {
+    margin-top: 1rem;
+}
+
+.screenshots-section h4 {
+    color: #e74c3c;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.screenshots-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.screenshot-container {
+    border: 2px solid #e74c3c;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.1);
+}
+
+.screenshot-header {
+    background: #e74c3c;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.screenshot-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.failure-screenshot {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.failure-screenshot:hover {
+    opacity: 0.9;
+}
+
+.other-artifacts-section {
+    margin-top: 1rem;
+}
+
+/* Filter Controls */
+.filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #34495e;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    min-width: 150px;
+}
+
+.filter-group select[multiple] {
+    height: auto;
+    min-height: 80px;
+}
+
+.filter-controls button {
+    padding: 0.5rem 1rem;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    align-self: flex-end;
+}
+
+.filter-controls button:hover {
+    background: #2980b9;
+}
+
+/* Test Tags */
+.tags-section, .metadata-section, .notes-section, .retry-section {
+    margin-top: 1rem;
+}
+
+.tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.test-tag {
+    background: #3498db;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+/* Metadata */
+.metadata-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.meta-item {
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #3498db;
+}
+
+.meta-key {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.meta-value {
+    color: #34495e;
+    font-family: monospace;
+}
+
+/* Notes */
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.note-item {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border-left: 3px solid #95a5a6;
+}
+
+.note-item.note-info {
+    background: #e8f4fd;
+    border-left-color: #3498db;
+}
+
+.note-item.note-warning {
+    background: #fef9e7;
+    border-left-color: #f39c12;
+}
+
+.note-item.note-error {
+    background: #fee;
+    border-left-color: #e74c3c;
+}
+
+.note-item.note-retry {
+    background: #f0f8e8;
+    border-left-color: #27ae60;
+}
+
+.note-type {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+/* Retry Information */
+.retry-section {
+    margin-top: 1rem;
+}
+
+.retry-info {
+    padding: 1rem;
+    background: #fff9e6;
+    border-radius: 4px;
+    border-left: 4px solid #f39c12;
+}
+
+.retry-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.retry-count {
+    color: #d68910;
+    font-weight: 500;
+}
+
+.retry-status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.retry-status-badge.passed {
+    background: #27ae60;
+    color: white;
+}
+
+.retry-status-badge.failed {
+    background: #e74c3c;
+    color: white;
+}
+
+.retry-description {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Retries Section */
+.retry-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #f39c12;
+    border-radius: 4px;
+    background: #fef9e7;
+}
+
+.retry-item h4 {
+    color: #d68910;
+    margin-bottom: 0.5rem;
+}
+
+.retry-details {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-badge.passed {
+    background: #27ae60;
+    color: white;
+}
+
+.status-badge.failed {
+    background: #e74c3c;
+    color: white;
+}
+
+.status-badge.pending {
+    background: #f39c12;
+    color: white;
+}
+
+/* History Chart */
+.history-stats {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.history-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.history-stat-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.history-stat-item h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    text-transform: uppercase;
+}
+
+.history-stat-item .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.history-timeline {
+    padding: 1.5rem;
+    background: white;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-left: 3px solid #3498db;
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 0 6px 6px 0;
+    transition: all 0.2s;
+}
+
+.timeline-item:hover {
+    background: #e9ecef;
+    transform: translateX(4px);
+}
+
+.timeline-time {
+    min-width: 150px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-family: 'Courier New', monospace;
+}
+
+.timeline-result {
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.timeline-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.timeline-badge.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.timeline-badge.failure {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.history-chart-container {
+    padding: 2rem 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+#historyChart {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Test Performance Section */
+.performance-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    padding: 1.5rem;
+}
+
+.performance-group h3 {
+    margin: 0 0 1rem 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+}
+
+.performance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.performance-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+    transition: all 0.2s;
+}
+
+.performance-item:hover {
+    background: #e9ecef;
+    transform: translateX(4px);
+}
+
+.performance-item:nth-child(1) .performance-rank {
+    background: #f39c12;
+    color: white;
+}
+
+.performance-item:nth-child(2) .performance-rank {
+    background: #95a5a6;
+    color: white;
+}
+
+.performance-item:nth-child(3) .performance-rank {
+    background: #cd7f32;
+    color: white;
+}
+
+.performance-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #3498db;
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.performance-name {
+    flex: 1;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.performance-duration {
+    font-weight: 600;
+    color: #7f8c8d;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+/* Hidden items for filtering */
+.test-item.filtered-out {
+    display: none !important;
+}
+
+/* System Info Section */
+.system-info-section {
+    background: white;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.system-info-header {
+    background: #2c3e50;
+    color: white;
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.system-info-header:hover {
+    background: #34495e;
+}
+
+.system-info-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.toggle-icon {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+    transform: rotate(-180deg);
+}
+
+.system-info-content {
+    display: none;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.system-info-content.visible {
+    display: block;
+}
+
+.system-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    padding: 0.75rem;
+    background: white;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.info-key {
+    font-weight: bold;
+    color: #2c3e50;
+    display: inline-block;
+    min-width: 100px;
+}
+
+.info-value {
+    color: #34495e;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+/* BDD/Gherkin specific styles */
+.bdd-test {
+    border-left: 4px solid #8e44ad;
+}
+
+.bdd-badge {
+    background: #8e44ad;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.bdd-feature-section {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-left: 4px solid #8e44ad;
+    border-radius: 4px;
+}
+
+.feature-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #8e44ad;
+    margin-bottom: 0.5rem;
+}
+
+.feature-description {
+    color: #34495e;
+    font-style: italic;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 4px;
+}
+
+.feature-file {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    margin-top: 0.5rem;
+}
+
+.feature-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
+}
+
+.feature-tag {
+    background: #8e44ad;
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+}
+
+.bdd-steps-section {
+    margin-top: 1rem;
+}
+
+.bdd-steps-section h4 {
+    color: #8e44ad;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.bdd-step-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ecf0f1;
+    font-family: 'Segoe UI', sans-serif;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-height: 2rem;
+}
+
+.bdd-step-item:last-child {
+    border-bottom: none;
+}
+
+.bdd-keyword {
+    font-weight: bold;
+    color: #8e44ad;
+    margin-right: 0.5rem;
+    min-width: 60px;
+    text-align: left;
+    flex-shrink: 0;
+}
+
+.bdd-step-text {
+    flex: 1;
+    color: #2c3e50;
+    margin-right: 0.5rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+    min-width: 0;
+}
+
+.step-comment {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-left: 3px solid #8e44ad;
+    font-style: italic;
+    color: #6c757d;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .stats-cards {
+        flex-direction: column;
+    }
+    
+    .test-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .test-feature, .test-duration {
+        align-self: flex-start;
+    }
+}
+    </style>
+</head>
+<body>
+  <header class="report-header">
+    <h1>CodeceptJS Test Report v3.7.8</h1>
+    <div class="report-meta">
+      <span>Generated: 2026-04-19T17:06:40.283Z</span>
+      <span>Duration: 5.74s</span>
+    </div>
+  </header>
+
+  <main class="report-content">
+    
+      <section class="system-info-section">
+        <div class="system-info-header" onclick="toggleSystemInfo()">
+          <h3>Environment Information</h3>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="system-info-content" id="systemInfoContent">
+          <div class="system-info-grid">
+            <div class="info-item"><span class="info-key">Node.js:</span> <span class="info-value">24.15.0</span></div><div class="info-item"><span class="info-key">OS:</span> <span class="info-value">Windows 11 10.0.26200</span></div><div class="info-item"><span class="info-key">CPU:</span> <span class="info-value">(16) x64 Intel(R) Core(TM) Ultra 7 265H</span></div><div class="info-item"><span class="info-key">Chrome:</span> <span class="info-value">147.0.7727.56</span></div><div class="info-item"><span class="info-key">Edge:</span> <span class="info-value">Chromium (145.0.3800.97)</span></div><div class="info-item"><span class="info-key">Firefox:</span> <span class="info-value">N/A</span></div><div class="info-item"><span class="info-key">Safari:</span> <span class="info-value">N/A</span></div><div class="info-item"><span class="info-key">Playwright Browsers:</span> <span class="info-value">chromium: 147.0.7727.15, firefox: 148.0.2, webkit: 26.4</span></div>
+          </div>
+        </div>
+      </section>
+    
+
+    <section class="stats-section">
+      <h2>Test Statistics</h2>
+      
+      <div class="stats-cards">
+        <div class="stat-card total">
+          <h3>Total</h3>
+          <span class="stat-number">18</span>
+        </div>
+        <div class="stat-card passed">
+          <h3>Passed</h3>
+          <span class="stat-number">14</span>
+        </div>
+        <div class="stat-card failed">
+          <h3>Failed</h3>
+          <span class="stat-number">4</span>
+        </div>
+        <div class="stat-card pending">
+          <h3>Skipped</h3>
+          <span class="stat-number">0</span>
+        </div>
+        <div class="stat-card flaky">
+          <h3>Flaky</h3>
+          <span class="stat-number">0</span>
+        </div>
+        <div class="stat-card artifacts">
+          <h3>Artifacts</h3>
+          <span class="stat-number">0</span>
+        </div>
+      </div>
+      <div class="metrics-summary">
+        <span>Pass Rate: <strong>77.8%</strong></span>
+        <span>Fail Rate: <strong>22.2%</strong></span>
+      </div>
+      <div class="pie-chart-container">
+        <canvas id="statsChart" width="300" height="300"></canvas>
+        <script>
+          // Pie chart data will be rendered by JavaScript
+          window.chartData = {
+            passed: 14,
+            failed: 4,
+            pending: 0
+          };
+        </script>
+      </div>
+    
+        </section>
+
+        <section class="test-performance-section">
+            <h2>Test Performance Analysis</h2>
+            <div class="performance-container">
+                <div class="performance-group">
+                    <h3>⏱️ Longest Running Tests</h3>
+                    <div id="longestTests" class="performance-list"></div>
+                </div>
+                <div class="performance-group">
+                    <h3>⚡ Fastest Tests</h3>
+                    <div id="fastestTests" class="performance-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="history-section" style="display: none;">
+            <h2>Test Execution History</h2>
+            <div class="history-stats" id="historyStats"></div>
+            <div class="history-timeline" id="historyTimeline"></div>
+            <div class="history-chart-container">
+                <canvas id="historyChart" width="1600" height="600"></canvas>
+            </div>
+        </section>
+
+        <section class="filters-section">
+            <h2>Filters</h2>
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label>Status:</label>
+                    <select id="statusFilter" multiple>
+                        <option value="passed">Passed</option>
+                        <option value="failed">Failed</option>
+                        <option value="pending">Pending</option>
+                        <option value="skipped">Skipped</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Feature:</label>
+                    <input type="text" id="featureFilter" placeholder="Filter by feature...">
+                </div>
+                <div class="filter-group">
+                    <label>Tags:</label>
+                    <input type="text" id="tagFilter" placeholder="Filter by tags...">
+                </div>
+                <div class="filter-group">
+                    <label>Retries:</label>
+                    <select id="retryFilter">
+                        <option value="all">All</option>
+                        <option value="retried">With Retries</option>
+                        <option value="no-retries">No Retries</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Test Type:</label>
+                    <select id="typeFilter">
+                        <option value="all">All</option>
+                        <option value="bdd">BDD/Gherkin</option>
+                        <option value="regular">Regular</option>
+                    </select>
+                </div>
+                <button onclick="resetFilters()">Reset Filters</button>
+            </div>
+        </section>
+
+        <section class="tests-section">
+            <h2>Test Results</h2>
+            <div class="tests-container">
+                
+          <section class="feature-group">
+            <h3 class="feature-group-title" onclick="toggleFeatureGroup('application')">
+              Application
+              <span class="toggle-icon">▼</span>
+            </h3>
+            <div class="feature-tests" id="feature-application">
+              
+                  <div class="test-item failed" id="test-9ff90cf2" data-feature="Application" data-status="failed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-9ff90cf2')">
+                      <span class="test-status failed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">create application (data-driven) | {"opportunityId":1,"coverLetter":"I am suitable for this scholarship","motivation":"I want to learn more","gpa":3.5,"expectedStatus":200}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">b5_gINHUFSy6PqPgmGYyzakRlG6KI7SMV6PrHpXWeK</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-9ff90cf2">
+                      <div class="error-message"><pre>Response code is not the same as expected 403 !== 200
+
+Stack trace:
+AssertionError [ERR_ASSERTION]: 
+    at JSONResponse.seeResponseCodeIs (node_modules\codeceptjs\lib\helper\JSONResponse.js:105:12)
+    at HelperStep.run (node_modules\codeceptjs\lib\step\helper.js:28:49)
+
+
+( ) File: file://C:\Users\Art\OneDrive\Desktop\edumatch-test\tests\application_test.js
+
+( ) Scenario Steps:
+× I.seeResponseCodeIs(200) at Test.&lt;anonymous&gt; (.\tests\application_test.js:24:5)
+√ I.sendPostRequest(&quot;/api/applications&quot;, {&quot;opportunityId&quot;:1,&quot;coverLetter&quot;:&quot;I am suitable for this scholarship&quot;,&quot;motivation&quot;:&quot;I want to learn more&quot;,&quot;gpa&quot;:3.5,&quot;expectedStatus&quot;:200}) at Test.&lt;anonymous&gt; (.\tests\application_test.js:20:23)
+√ I.haveRequestHeaders({&quot;Authorization&quot;:&quot;Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50NCIsInJvbGVzIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc2NjE4Mzk0LCJleHAiOjE3NzY3MDQ3OTR9.sGkDITsSvFkov8g4-J4x6rADh-6usrQRrVlsCNNhkfE&quot;}) at Test.&lt;anonymous&gt; (.\tests\application_test.js:15:5)
+√ I.sendPostRequest(&quot;/api/auth/signin&quot;, {&quot;username&quot;:&quot;student4&quot;,&quot;password&quot;:&quot;123456&quot;}) at Test.&lt;anonymous&gt; (.\tests\application_test.js:8:25)</pre></div>
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"student4","password":"123456"})</span>
+          <span class="step-duration">235ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.haveRequestHeaders({"Authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50NCIsInJvbGVzIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc2NjE4Mzk0LCJleHAiOjE3NzY3MDQ3OTR9.sGkDITsSvFkov8g4-J4x6rADh-6usrQRrVlsCNNhkfE"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/applications", {"opportunityId":1,"coverLetter":"I am suitable for this scholarship","motivation":"I want to learn more","gpa":3.5,"expectedStatus":200})</span>
+          <span class="step-duration">70ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(200)</span>
+          <span class="step-duration">2ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-de2b761b" data-feature="Application" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-de2b761b')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">create application (data-driven) | {"coverLetter":"Missing opp id","motivation":"Test","gpa":3,"expectedStatus":400}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">Xvl5hwWDszNBpuCI4qUZtVLB_BShoJSx06sZd+Q3g5</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-de2b761b">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"student4","password":"123456"})</span>
+          <span class="step-duration">205ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.haveRequestHeaders({"Authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50NCIsInJvbGVzIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc2NjE4Mzk1LCJleHAiOjE3NzY3MDQ3OTV9.1hVn5b_G2vLhFLfmkrWX1Iqw9bNEgQALBGdsRLX8dkw"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/applications", {"coverLetter":"Missing opp id","motivation":"Test","gpa":3,"expectedStatus":400})</span>
+          <span class="step-duration">18ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(400)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item failed" id="test-10722a11" data-feature="Application" data-status="failed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-10722a11')">
+                      <span class="test-status failed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">create application (data-driven) | {"opportunityId":1,"coverLetter":"Bad GPA","motivation":"Test","gpa":-1,"expectedStatus":400}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">Zj+YhYxO7NDIRz95sXnRpvlcqJCZLY+HpDBOfxk7G6</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-10722a11">
+                      <div class="error-message"><pre>Response code is not the same as expected 403 !== 400
+
+Stack trace:
+AssertionError [ERR_ASSERTION]: 
+    at JSONResponse.seeResponseCodeIs (node_modules\codeceptjs\lib\helper\JSONResponse.js:105:12)
+    at HelperStep.run (node_modules\codeceptjs\lib\step\helper.js:28:49)
+
+
+( ) File: file://C:\Users\Art\OneDrive\Desktop\edumatch-test\tests\application_test.js
+
+( ) Scenario Steps:
+× I.seeResponseCodeIs(400) at Test.&lt;anonymous&gt; (.\tests\application_test.js:24:5)
+√ I.sendPostRequest(&quot;/api/applications&quot;, {&quot;opportunityId&quot;:1,&quot;coverLetter&quot;:&quot;Bad GPA&quot;,&quot;motivation&quot;:&quot;Test&quot;,&quot;gpa&quot;:-1,&quot;expectedStatus&quot;:400}) at Test.&lt;anonymous&gt; (.\tests\application_test.js:20:23)
+√ I.haveRequestHeaders({&quot;Authorization&quot;:&quot;Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50NCIsInJvbGVzIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc2NjE4Mzk2LCJleHAiOjE3NzY3MDQ3OTZ9.ATQD4SGrR4dsVcvGD_e5hwbG6EKlgvPKzgpNl24VtEw&quot;}) at Test.&lt;anonymous&gt; (.\tests\application_test.js:15:5)
+√ I.sendPostRequest(&quot;/api/auth/signin&quot;, {&quot;username&quot;:&quot;student4&quot;,&quot;password&quot;:&quot;123456&quot;}) at Test.&lt;anonymous&gt; (.\tests\application_test.js:8:25)</pre></div>
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"student4","password":"123456"})</span>
+          <span class="step-duration">156ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.haveRequestHeaders({"Authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50NCIsInJvbGVzIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc2NjE4Mzk2LCJleHAiOjE3NzY3MDQ3OTZ9.ATQD4SGrR4dsVcvGD_e5hwbG6EKlgvPKzgpNl24VtEw"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/applications", {"opportunityId":1,"coverLetter":"Bad GPA","motivation":"Test","gpa":-1,"expectedStatus":400})</span>
+          <span class="step-duration">45ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(400)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+            </div>
+          </section>
+        
+          <section class="feature-group">
+            <h3 class="feature-group-title" onclick="toggleFeatureGroup('auth')">
+              Auth
+              <span class="toggle-icon">▼</span>
+            </h3>
+            <div class="feature-tests" id="feature-auth">
+              
+                  <div class="test-item passed" id="test-e18bb57a" data-feature="Auth" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-e18bb57a')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">login multiple users (valid + invalid) | {"username":"employer3","password":"password123","expectedStatus":200}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">Qw9nh+NdERkwXxo9ljs7EjDkKQcBRM0Z5YZ5dftlN4</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-e18bb57a">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"employer3","password":"password123"})</span>
+          <span class="step-duration">179ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(200)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseContainsJson({"accessToken":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbXBsb3llcjMiLCJyb2xlcyI6IlJPTEVfRU1QTE9ZRVIiLCJpYXQiOjE3NzY2MTgzOTcsImV4cCI6MTc3NjcwNDc5N30.3_wr9RWV4xVIbjGb9xG9sFyu7jSHIHdCRb96tDr9xoY"})</span>
+          <span class="step-duration">1ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-45cb3d24" data-feature="Auth" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-45cb3d24')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">login multiple users (valid + invalid) | {"username":"admin","password":"admin123","expectedStatus":200}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">nf6zGe+sq1jk1Ti1y1a2vi2gYZwESAyHBE_1eFn9tX</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-45cb3d24">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"admin","password":"admin123"})</span>
+          <span class="step-duration">166ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(200)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseContainsJson({"accessToken":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjoiUk9MRV9VU0VSLFJPTEVfQURNSU4sUk9MRV9FTVBMT1lFUiIsImlhdCI6MTc3NjYxODM5NywiZXhwIjoxNzc2NzA0Nzk3fQ.prVynDBXEuN3JcrGOzmsjFuaMqGj_e5DPw8RilO7zhs"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-60ba5e81" data-feature="Auth" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-60ba5e81')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">login multiple users (valid + invalid) | {"username":"student4","password":"123456","expectedStatus":200}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">Bq8DXx9z2Nbp+9dfSd2ab7OyLwMsgJFuZlTxvFbMGY</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-60ba5e81">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"student4","password":"123456"})</span>
+          <span class="step-duration">158ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(200)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseContainsJson({"accessToken":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50NCIsInJvbGVzIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc2NjE4Mzk3LCJleHAiOjE3NzY3MDQ3OTd9.80YgYauuDws9WP-3Qi2jzzMuUVDoTdhw2OTRwWjdvBs"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item failed" id="test-7a4a474f" data-feature="Auth" data-status="failed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-7a4a474f')">
+                      <span class="test-status failed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">login multiple users (valid + invalid) | {"username":"fake_user","password":"123456","expectedStatus":401}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">AhO3jYklOaFicxpPbDIffLMp6RVhWdMedx7pw8WEns</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-7a4a474f">
+                      <div class="error-message"><pre>Response code is not the same as expected 500 !== 401
+
+Stack trace:
+AssertionError [ERR_ASSERTION]: 
+    at JSONResponse.seeResponseCodeIs (node_modules\codeceptjs\lib\helper\JSONResponse.js:105:12)
+    at HelperStep.run (node_modules\codeceptjs\lib\step\helper.js:28:49)
+
+
+( ) File: file://C:\Users\Art\OneDrive\Desktop\edumatch-test\tests\auth_test.js
+
+( ) Scenario Steps:
+× I.seeResponseCodeIs(401) at Test.&lt;anonymous&gt; (.\tests\auth_test.js:17:5)
+√ I.sendPostRequest(&quot;/api/auth/signin&quot;, {&quot;username&quot;:&quot;fake_user&quot;,&quot;password&quot;:&quot;123456&quot;}) at Test.&lt;anonymous&gt; (.\tests\auth_test.js:9:23)</pre></div>
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"fake_user","password":"123456"})</span>
+          <span class="step-duration">26ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(401)</span>
+          <span class="step-duration">1ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-e6c9a5ee" data-feature="Auth" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-e6c9a5ee')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">login multiple users (valid + invalid) | {"username":"student4","password":"12345","expectedStatus":401}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">iPwKuV93m4Z3kUt4H7M9pDmVPCpPrEWaRDq57x13Vq</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-e6c9a5ee">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"student4","password":"12345"})</span>
+          <span class="step-duration">137ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(401)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-c45a9b2f" data-feature="Auth" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-c45a9b2f')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">login fail - wrong password</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">rR1rPh4+6et9NIgQu8XF8H95n+mia3UnsrhOZFejJG</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-c45a9b2f">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"employer3","password":"sai123"})</span>
+          <span class="step-duration">145ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(401)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-4ac7db93" data-feature="Auth" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-4ac7db93')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">login fail - missing field</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">Wo12Esc9TCvLPGWTDOBA4W8whZ8L1ZyWitfymxIJ13</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-4ac7db93">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"employer3"})</span>
+          <span class="step-duration">10ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(400)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-4729d4d3" data-feature="Auth" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-4729d4d3')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">verify token after login</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">arVEoguOdR705NPPlw9B57cXJsrkc1LTdHZFY_CeaM</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-4729d4d3">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"employer3","password":"password123"})</span>
+          <span class="step-duration">167ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.haveRequestHeaders({"Authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbXBsb3llcjMiLCJyb2xlcyI6IlJPTEVfRU1QTE9ZRVIiLCJpYXQiOjE3NzY2MTgzOTgsImV4cCI6MTc3NjcwNDc5OH0.jI75qUeVoCbvCB2AY9_0uodluzCjPcEwnkYV0BgKKBs"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendGetRequest("/api/auth/verify")</span>
+          <span class="step-duration">10ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(200)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-cab9e3c5" data-feature="Auth" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-cab9e3c5')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">verify fail - no token</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">NoQhC+SBhxIx_X5BbdXwgE0hgMaZtppCbaNI2ru1h7</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-cab9e3c5">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendGetRequest("/api/auth/verify")</span>
+          <span class="step-duration">6ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(401)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+            </div>
+          </section>
+        
+          <section class="feature-group">
+            <h3 class="feature-group-title" onclick="toggleFeatureGroup('opportunity')">
+              Opportunity
+              <span class="toggle-icon">▼</span>
+            </h3>
+            <div class="feature-tests" id="feature-opportunity">
+              
+                  <div class="test-item failed" id="test-93f55d41" data-feature="Opportunity" data-status="failed" data-tags="@gmail" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-93f55d41')">
+                      <span class="test-status failed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">create opportunity (data-driven) | {"title":"Scholarship A","description":"Valid scholarship","applicationDeadline":"2026-12-31","startDate":"2026-01-01","endDate":"2026-12-31","scholarshipAmount":1000,"studyMode":"ONLINE","level":"BACHELOR","isPublic":true,"contactEmail":"test@gmail.com","organizationId":1,"tags":["IT","AI"],"requiredSkills":["Java","Spring"],"expectedStatus":200}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">W31NWJqBWShfSWoOo2Wthb463y8JsQ0jfSy9IQ4yHx</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-93f55d41">
+                      <div class="error-message"><pre>Response code is not the same as expected 400 !== 200
+
+Stack trace:
+AssertionError [ERR_ASSERTION]: 
+    at JSONResponse.seeResponseCodeIs (node_modules\codeceptjs\lib\helper\JSONResponse.js:105:12)
+    at HelperStep.run (node_modules\codeceptjs\lib\step\helper.js:28:49)
+
+
+( ) File: file://C:\Users\Art\OneDrive\Desktop\edumatch-test\tests\opportunity_test.js
+
+( ) Scenario Steps:
+× I.seeResponseCodeIs(200) at Test.&lt;anonymous&gt; (.\tests\opportunity_test.js:22:5)
+√ I.sendPostRequest(&quot;/api/opportunities&quot;, {&quot;title&quot;:&quot;Scholarship A&quot;,&quot;description&quot;:&quot;Valid scholarship&quot;,&quot;applicationDeadline&quot;:&quot;2026-12-31&quot;,&quot;startDate&quot;:&quot;2026-01-01&quot;,&quot;endDate&quot;:&quot;2026-12-31&quot;,&quot;scholarshipAmount&quot;:1000,&quot;studyMode&quot;:&quot;ONLINE&quot;,&quot;level&quot;:&quot;BACHELOR&quot;,&quot;isPublic&quot;:true,&quot;contactEmail&quot;:&quot;test@gmail.com&quot;,&quot;organizationId&quot;:1,&quot;tags&quot;:[&quot;IT&quot;,&quot;AI&quot;],&quot;requiredSkills&quot;:[&quot;Java&quot;,&quot;Spring&quot;],&quot;expectedStatus&quot;:200}) at Test.&lt;anonymous&gt; (.\tests\opportunity_test.js:20:23)
+√ I.haveRequestHeaders({&quot;Authorization&quot;:&quot;Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbXBsb3llcjMiLCJyb2xlcyI6IlJPTEVfRU1QTE9ZRVIiLCJpYXQiOjE3NzY2MTgzOTgsImV4cCI6MTc3NjcwNDc5OH0.jI75qUeVoCbvCB2AY9_0uodluzCjPcEwnkYV0BgKKBs&quot;}) at Test.&lt;anonymous&gt; (.\tests\opportunity_test.js:15:5)
+√ I.sendPostRequest(&quot;/api/auth/signin&quot;, {&quot;username&quot;:&quot;employer3&quot;,&quot;password&quot;:&quot;password123&quot;}) at Test.&lt;anonymous&gt; (.\tests\opportunity_test.js:8:25)</pre></div>
+                      
+                      
+      <div class="tags-section">
+        <h4>Tags:</h4>
+        <div class="tags-list"><span class="test-tag">@gmail</span></div>
+      </div>
+    
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"employer3","password":"password123"})</span>
+          <span class="step-duration">174ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.haveRequestHeaders({"Authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbXBsb3llcjMiLCJyb2xlcyI6IlJPTEVfRU1QTE9ZRVIiLCJpYXQiOjE3NzY2MTgzOTgsImV4cCI6MTc3NjcwNDc5OH0.jI75qUeVoCbvCB2AY9_0uodluzCjPcEwnkYV0BgKKBs"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/opportunities", {"title":"Scholarship A","description":"Valid scholarship","applicationDeadline":"2026-12-31","startDate":"2026-01-01","endDate":"2026-12-31","scholarshipAmount":1000,"studyMode":"ONLINE","level":"BACHELOR","isPublic":true,"contactEmail":"test@gmail.com","organizationId":1,"tags":["IT","AI"],"requiredSkills":["Java","Spring"],"expectedStatus":200})</span>
+          <span class="step-duration">16ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(200)</span>
+          <span class="step-duration">4ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-b402c98f" data-feature="Opportunity" data-status="passed" data-tags="@gmail" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-b402c98f')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">create opportunity (data-driven) | {"title":"","description":"Missing title","applicationDeadline":"2026-12-31","startDate":"2026-01-01","endDate":"2026-12-31","scholarshipAmount":1000,"studyMode":"ONLINE","level":"BACHELOR","isPublic":true,"contactEmail":"test@gmail.com","organizationId":1,"tags":["IT"],"requiredSkills":["Java"],"expectedStatus":400}</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">+jf1UUZqGPPuq2k0JiPOT7H68mE4lFonLtwTxVpEhJ</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-b402c98f">
+                      
+                      
+                      
+      <div class="tags-section">
+        <h4>Tags:</h4>
+        <div class="tags-list"><span class="test-tag">@gmail</span></div>
+      </div>
+    
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"employer3","password":"password123"})</span>
+          <span class="step-duration">179ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.haveRequestHeaders({"Authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbXBsb3llcjMiLCJyb2xlcyI6IlJPTEVfRU1QTE9ZRVIiLCJpYXQiOjE3NzY2MTgzOTksImV4cCI6MTc3NjcwNDc5OX0.NWDCG_OoPlwXdZQSb8km-StPsWVdWFQOWTyd_Q7lOok"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/opportunities", {"title":"","description":"Missing title","applicationDeadline":"2026-12-31","startDate":"2026-01-01","endDate":"2026-12-31","scholarshipAmount":1000,"studyMode":"ONLINE","level":"BACHELOR","isPublic":true,"contactEmail":"test@gmail.com","organizationId":1,"tags":["IT"],"requiredSkills":["Java"],"expectedStatus":400})</span>
+          <span class="step-duration">21ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(400)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+            </div>
+          </section>
+        
+          <section class="feature-group">
+            <h3 class="feature-group-title" onclick="toggleFeatureGroup('user')">
+              User
+              <span class="toggle-icon">▼</span>
+            </h3>
+            <div class="feature-tests" id="feature-user">
+              
+                  <div class="test-item passed" id="test-02c175ef" data-feature="User" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-02c175ef')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">get user profile success</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">sqQ1R0RgLWrvv7dVaWCewOO5_x80sLzpBoR7pV10bo</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-02c175ef">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"student4","password":"123456"})</span>
+          <span class="step-duration">143ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.haveRequestHeaders({"Authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50NCIsInJvbGVzIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc2NjE4Mzk5LCJleHAiOjE3NzY3MDQ3OTl9.GBxrioH3UFnsBURHTsXhXPddr8sdxFlOGlXn8ZiQ4Jg"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendGetRequest("/api/user/me")</span>
+          <span class="step-duration">20ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(200)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-bab68af4" data-feature="User" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-bab68af4')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">get user profile fail - no token</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">5K6S57qmnqJg7CgsKSaF8MCM1zxV2XA67IRHA5Eqeb</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-bab68af4">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendGetRequest("/api/user/me")</span>
+          <span class="step-duration">8ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(401)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-0e75e247" data-feature="User" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-0e75e247')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">update profile success</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">dLr1kXyEiCVmVAr68YA_0gGSwJh_yXKUI6XGVu_DAc</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-0e75e247">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPostRequest("/api/auth/signin", {"username":"student4","password":"123456"})</span>
+          <span class="step-duration">205ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.haveRequestHeaders({"Authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50NCIsInJvbGVzIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc2NjE4NDAwLCJleHAiOjE3NzY3MDQ4MDB9.KvwEvUiJf4LNo2d35iryerRBsF33hreaNHCgmeQw1R0"})</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPutRequest("/api/user/me", {"fullName":"Test User Updated","bio":"Testing update profile"})</span>
+          <span class="step-duration">41ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(200)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+                  <div class="test-item passed" id="test-029a4e3f" data-feature="User" data-status="passed" data-tags="" data-retries="0" data-type="regular">
+                    <div class="test-header" onclick="toggleTestDetails('test-029a4e3f')">
+                      <span class="test-status passed">●</span>
+                      <div class="test-info">
+                        <h3 class="test-title">update profile fail - no token</h3>
+                        <div class="test-meta-line">
+                          
+                          <span class="test-uid">Wzb6eP1Ker3kYxDL4ochXQrrt4PG_WgnU7bcpvJk38</span>
+                          <span class="test-duration">0ms</span>
+                          
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="test-details" id="details-test-029a4e3f">
+                      
+                      
+                      
+                      
+      <div class="metadata-section">
+        <h4>Metadata:</h4>
+        <div class="metadata-list"><div class="meta-item"><span class="meta-key">conditionalRetries:</span> <span class="meta-value">3</span></div></div>
+      </div>
+    
+                      
+                      
+                      
+                      
+      <div class="steps-section">
+        <h4>Steps:</h4>
+        <div class="steps-list">
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.sendPutRequest("/api/user/me", {"fullName":"Fail Update"})</span>
+          <span class="step-duration">9ms</span>
+        </div>
+      
+        <div class="step-item success">
+          <span class="step-status success">●</span>
+          <span class="step-title">I.seeResponseCodeIs(401)</span>
+          <span class="step-duration">0ms</span>
+        </div>
+      </div>
+      </div>
+    
+                      
+                    </div>
+                  </div>
+                
+            </div>
+          </section>
+        
+            </div>
+        </section>
+
+        <section class="retries-section" style="display: none;">
+            <h2>Test Retries (Moved to Test Details)</h2>
+            <div class="retries-container">
+                <p>Retry information is now shown in each test's details section.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for images -->
+    <div id="imageModal" class="modal" onclick="closeImageModal()">
+        <img id="modalImage" src="" alt="Enlarged screenshot"/>
+    </div>
+
+    <script>
+        window.testData = {
+            stats: {"tests":18,"passes":14,"failures":4,"pending":0,"duration":5741,"failedHooks":0,"flaky":0,"artifacts":0},
+            history: []
+        };
+    </script>
+    <script>
+// Go to Top button
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleFeatureGroup(featureId) {
+    const featureTests = document.getElementById('feature-' + featureId);
+    const titleElement = featureTests.previousElementSibling;
+    const icon = titleElement.querySelector('.toggle-icon');
+    
+    if (featureTests.classList.contains('collapsed')) {
+        featureTests.classList.remove('collapsed');
+        icon.classList.remove('rotated');
+    } else {
+        featureTests.classList.add('collapsed');
+        icon.classList.add('rotated');
+    }
+}
+
+function toggleTestDetails(testId) {
+    const details = document.getElementById('details-' + testId);
+    if (details.style.display === 'none' || details.style.display === '') {
+        details.style.display = 'block';
+    } else {
+        details.style.display = 'none';
+    }
+}
+
+function openImageModal(src) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modalImg.src = src;
+    modal.style.display = 'block';
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+}
+
+function toggleSystemInfo() {
+    const content = document.getElementById('systemInfoContent');
+    const icon = document.querySelector('.toggle-icon');
+    
+    if (content.classList.contains('visible')) {
+        content.classList.remove('visible');
+        icon.classList.remove('rotated');
+    } else {
+        content.classList.add('visible');
+        icon.classList.add('rotated');
+    }
+}
+
+// Filter functionality
+function applyFilters() {
+    const statusFilter = Array.from(document.getElementById('statusFilter').selectedOptions).map(opt => opt.value);
+    const featureFilter = document.getElementById('featureFilter').value.toLowerCase();
+    const tagFilter = document.getElementById('tagFilter').value.toLowerCase();
+    const retryFilter = document.getElementById('retryFilter').value;
+    const typeFilter = document.getElementById('typeFilter').value;
+
+    const testItems = document.querySelectorAll('.test-item');
+
+    testItems.forEach(item => {
+        let shouldShow = true;
+
+        // Status filter
+        if (statusFilter.length > 0) {
+            const testStatus = item.dataset.status;
+            if (!statusFilter.includes(testStatus)) {
+                shouldShow = false;
+            }
+        }
+
+        // Feature filter
+        if (featureFilter && shouldShow) {
+            const feature = (item.dataset.feature || '').toLowerCase();
+            if (!feature.includes(featureFilter)) {
+                shouldShow = false;
+            }
+        }
+
+        // Tag filter
+        if (tagFilter && shouldShow) {
+            const tags = (item.dataset.tags || '').toLowerCase();
+            if (!tags.includes(tagFilter)) {
+                shouldShow = false;
+            }
+        }
+
+        // Retry filter
+        if (retryFilter !== 'all' && shouldShow) {
+            const retries = parseInt(item.dataset.retries || '0');
+            if (retryFilter === 'retried' && retries === 0) {
+                shouldShow = false;
+            } else if (retryFilter === 'no-retries' && retries > 0) {
+                shouldShow = false;
+            }
+        }
+
+        // Test type filter (BDD/Gherkin vs Regular)
+        if (typeFilter !== 'all' && shouldShow) {
+            const testType = item.dataset.type || 'regular';
+            if (typeFilter !== testType) {
+                shouldShow = false;
+            }
+        }
+
+        if (shouldShow) {
+            item.classList.remove('filtered-out');
+        } else {
+            item.classList.add('filtered-out');
+        }
+    });
+
+    updateFilteredStats();
+}
+
+function resetFilters() {
+    document.getElementById('statusFilter').selectedIndex = -1;
+    document.getElementById('featureFilter').value = '';
+    document.getElementById('tagFilter').value = '';
+    document.getElementById('retryFilter').value = 'all';
+    document.getElementById('typeFilter').value = 'all';
+    
+    document.querySelectorAll('.test-item').forEach(item => {
+        item.classList.remove('filtered-out');
+    });
+
+    updateFilteredStats();
+}
+
+function updateFilteredStats() {
+    const visibleTests = document.querySelectorAll('.test-item:not(.filtered-out)');
+    const totalVisible = visibleTests.length;
+    
+    // Update the title to show filtered count
+    const testsSection = document.querySelector('.tests-section h2');
+    const totalTests = document.querySelectorAll('.test-item').length;
+    
+    if (totalVisible !== totalTests) {
+        testsSection.textContent = 'Test Results (' + totalVisible + ' of ' + totalTests + ' shown)';
+    } else {
+        testsSection.textContent = 'Test Results';
+    }
+}
+
+// Draw pie chart using canvas
+function drawPieChart() {
+    const canvas = document.getElementById('statsChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const data = window.chartData;
+    
+    if (!data) return;
+    
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) - 20;
+    
+    const total = data.passed + data.failed + data.pending;
+    if (total === 0) {
+        // Draw empty circle for no tests
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fillStyle = '#888';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('No Tests', centerX, centerY);
+        return;
+    }
+    
+    let currentAngle = -Math.PI / 2; // Start from top
+    
+    // Calculate percentages
+    const passedPercent = Math.round((data.passed / total) * 100);
+    const failedPercent = Math.round((data.failed / total) * 100);
+    const pendingPercent = Math.round((data.pending / total) * 100);
+    
+    // Draw passed segment
+    if (data.passed > 0) {
+        const angle = (data.passed / total) * 2 * Math.PI;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + angle);
+        ctx.closePath();
+        ctx.fillStyle = '#27ae60';
+        ctx.fill();
+        
+        // Add percentage text on segment if significant enough
+        if (passedPercent >= 10) {
+            const textAngle = currentAngle + angle / 2;
+            const textRadius = radius * 0.7;
+            const textX = centerX + Math.cos(textAngle) * textRadius;
+            const textY = centerY + Math.sin(textAngle) * textRadius;
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(passedPercent + '%', textX, textY);
+        }
+        
+        currentAngle += angle;
+    }
+    
+    // Draw failed segment
+    if (data.failed > 0) {
+        const angle = (data.failed / total) * 2 * Math.PI;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + angle);
+        ctx.closePath();
+        ctx.fillStyle = '#e74c3c';
+        ctx.fill();
+        
+        // Add percentage text on segment if significant enough
+        if (failedPercent >= 10) {
+            const textAngle = currentAngle + angle / 2;
+            const textRadius = radius * 0.7;
+            const textX = centerX + Math.cos(textAngle) * textRadius;
+            const textY = centerY + Math.sin(textAngle) * textRadius;
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(failedPercent + '%', textX, textY);
+        }
+        
+        currentAngle += angle;
+    }
+    
+    // Draw pending segment
+    if (data.pending > 0) {
+        const angle = (data.pending / total) * 2 * Math.PI;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + angle);
+        ctx.closePath();
+        ctx.fillStyle = '#f39c12';
+        ctx.fill();
+        
+        // Add percentage text on segment if significant enough
+        if (pendingPercent >= 10) {
+            const textAngle = currentAngle + angle / 2;
+            const textRadius = radius * 0.7;
+            const textX = centerX + Math.cos(textAngle) * textRadius;
+            const textY = centerY + Math.sin(textAngle) * textRadius;
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pendingPercent + '%', textX, textY);
+        }
+    }
+    
+    // Add legend with percentages
+    const legendY = centerY + radius + 40;
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    
+    let legendX = centerX - 150;
+    
+    // Passed legend
+    ctx.fillStyle = '#27ae60';
+    ctx.fillRect(legendX, legendY, 15, 15);
+    ctx.fillStyle = '#333';
+    ctx.fillText('Passed (' + data.passed + ' - ' + passedPercent + '%)', legendX + 20, legendY + 12);
+    
+    // Failed legend
+    legendX += 130;
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(legendX, legendY, 15, 15);
+    ctx.fillStyle = '#333';
+    ctx.fillText('Failed (' + data.failed + ' - ' + failedPercent + '%)', legendX + 20, legendY + 12);
+    
+    // Pending legend
+    if (data.pending > 0) {
+        legendX += 120;
+        ctx.fillStyle = '#f39c12';
+        ctx.fillRect(legendX, legendY, 15, 15);
+        ctx.fillStyle = '#333';
+        ctx.fillText('Pending (' + data.pending + ' - ' + pendingPercent + '%)', legendX + 20, legendY + 12);
+    }
+}
+
+// Draw history chart
+function drawHistoryChart() {
+    const canvas = document.getElementById('historyChart');
+    
+    if (!canvas || !window.testData || !window.testData.history || window.testData.history.length === 0) {
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    const history = window.testData.history.slice().reverse(); // Most recent last
+    console.log('History chart - Total data points:', window.testData.history.length);
+    console.log('History chart - Processing points:', history.length);
+    console.log('History chart - Raw history data:', window.testData.history);
+    console.log('History chart - Reversed history:', history);
+    
+    const padding = 60;
+    const bottomPadding = 80; // Extra space for timestamps
+    const chartWidth = canvas.width - 2 * padding;
+    const chartHeight = canvas.height - padding - bottomPadding;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Calculate success rates and max values
+    const dataPoints = history.map((run, index) => {
+        const total = run.stats.tests || 0;
+        const passed = run.stats.passes || 0;
+        const failed = run.stats.failures || 0;
+        const successRate = total > 0 ? (passed / total) * 100 : 0;
+        const timestamp = new Date(run.timestamp);
+        
+        return {
+            index,
+            timestamp,
+            total,
+            passed,
+            failed,
+            successRate,
+            duration: run.duration || 0,
+            retries: run.retries || 0
+        };
+    });
+    
+    console.log('History chart - Data points created:', dataPoints.length);
+    console.log('History chart - Data points:', dataPoints);
+    
+    const maxTests = Math.max(...dataPoints.map(d => d.total));
+    const maxSuccessRate = 100;
+    
+    if (maxTests === 0) return;
+    
+    // Draw background
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(padding, padding, chartWidth, chartHeight);
+    
+    // Draw axes
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, padding + chartHeight);
+    ctx.lineTo(padding + chartWidth, padding + chartHeight);
+    ctx.stroke();
+    
+    // Draw grid lines
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) {
+        const y = padding + (chartHeight * i / 4);
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(padding + chartWidth, y);
+        ctx.stroke();
+    }
+    
+    // Calculate positions
+    const stepX = dataPoints.length > 1 ? chartWidth / (dataPoints.length - 1) : chartWidth / 2;
+    
+    // Draw success rate area chart
+    ctx.fillStyle = 'rgba(39, 174, 96, 0.1)';
+    ctx.strokeStyle = '#27ae60';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    
+    dataPoints.forEach((point, index) => {
+        const x = dataPoints.length === 1 ? padding + chartWidth / 2 : padding + (index * stepX);
+        const y = padding + chartHeight - (point.successRate / maxSuccessRate) * chartHeight;
+        
+        if (index === 0) {
+            ctx.moveTo(x, padding + chartHeight);
+            ctx.lineTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+        
+        point.x = x;
+        point.y = y;
+    });
+    
+    // Close the area
+    if (dataPoints.length > 0) {
+        const lastPoint = dataPoints[dataPoints.length - 1];
+        ctx.lineTo(lastPoint.x, padding + chartHeight);
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+    // Draw success rate line
+    ctx.strokeStyle = '#27ae60';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    dataPoints.forEach((point, index) => {
+        if (index === 0) {
+            ctx.moveTo(point.x, point.y);
+        } else {
+            ctx.lineTo(point.x, point.y);
+        }
+    });
+    ctx.stroke();
+    
+    // Draw data points with enhanced styling
+    dataPoints.forEach(point => {
+        // Outer ring based on status
+        const ringColor = point.failed > 0 ? '#e74c3c' : '#27ae60';
+        ctx.strokeStyle = ringColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // Inner circle
+        ctx.fillStyle = point.failed > 0 ? '#e74c3c' : '#27ae60';
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // White center dot
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI);
+        ctx.fill();
+    });
+    
+    // Y-axis labels (Success Rate %)
+    ctx.fillStyle = '#666';
+    ctx.font = '11px Arial';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+        const value = Math.round((maxSuccessRate * i) / 4);
+        const y = padding + chartHeight - (chartHeight * i / 4);
+        ctx.fillText(value + '%', padding - 10, y + 4);
+    }
+    
+    // X-axis labels (Timestamps)
+    ctx.textAlign = 'center';
+    ctx.font = '10px Arial';
+    dataPoints.forEach((point, index) => {
+        const timeStr = point.timestamp.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+        const dateStr = point.timestamp.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+        });
+        
+        console.log('Drawing label ' + index + ': ' + timeStr + ' at x=' + point.x);
+        ctx.fillText(timeStr, point.x, padding + chartHeight + 15);
+        ctx.fillText(dateStr, point.x, padding + chartHeight + 30);
+    });
+    
+    // Enhanced legend with statistics
+    const legendY = 25;
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'left';
+    
+    // Success rate legend
+    ctx.fillStyle = '#27ae60';
+    ctx.fillRect(padding + 20, legendY, 15, 15);
+    ctx.fillStyle = '#333';
+    ctx.fillText('Success Rate', padding + 40, legendY + 12);
+    
+    // Current stats
+    if (dataPoints.length > 0) {
+        const latest = dataPoints[dataPoints.length - 1];
+        const trend = dataPoints.length > 1 ? 
+            (latest.successRate - dataPoints[dataPoints.length - 2].successRate) : 0;
+        const trendIcon = trend > 0 ? '↗' : trend < 0 ? '↘' : '→';
+        const trendColor = trend > 0 ? '#27ae60' : trend < 0 ? '#e74c3c' : '#666';
+        
+        ctx.fillStyle = '#666';
+        ctx.fillText('Latest: ' + latest.successRate.toFixed(1) + '%', padding + 150, legendY + 12);
+        
+        ctx.fillStyle = trendColor;
+        ctx.fillText(trendIcon + ' ' + Math.abs(trend).toFixed(1) + '%', padding + 240, legendY + 12);
+    }
+    
+    // Chart title
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Test Success Rate History', canvas.width / 2, 20);
+}
+
+// Initialize charts and filters
+document.addEventListener('DOMContentLoaded', function() {
+    
+  // Draw charts
+  drawPieChart();
+  drawHistoryChart();
+  renderTestPerformance();
+  renderHistoryTimeline();
+  
+  // Add Go to Top button
+  const goTopBtn = document.createElement('button');
+  goTopBtn.innerText = '↑ Top';
+  goTopBtn.id = 'goTopBtn';
+  goTopBtn.style.position = 'fixed';
+  goTopBtn.style.bottom = '30px';
+  goTopBtn.style.right = '30px';
+  goTopBtn.style.zIndex = '9999';
+  goTopBtn.style.padding = '12px 18px';
+  goTopBtn.style.borderRadius = '50%';
+  goTopBtn.style.background = '#27ae60';
+  goTopBtn.style.color = '#fff';
+  goTopBtn.style.fontSize = '20px';
+  goTopBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+  goTopBtn.style.cursor = 'pointer';
+  goTopBtn.onclick = scrollToTop;
+  document.body.appendChild(goTopBtn);
+    
+    // Set up filter event listeners
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('featureFilter').addEventListener('input', applyFilters);
+    document.getElementById('tagFilter').addEventListener('input', applyFilters);
+    document.getElementById('retryFilter').addEventListener('change', applyFilters);
+    document.getElementById('typeFilter').addEventListener('change', applyFilters);
+});
+
+// Render test performance analysis
+function renderTestPerformance() {
+    const tests = Array.from(document.querySelectorAll('.test-item'));
+    const testsWithDuration = tests.map(testEl => {
+        const title = testEl.querySelector('.test-title')?.textContent || 'Unknown';
+        const durationText = testEl.querySelector('.test-duration')?.textContent || '0ms';
+        const durationMs = parseDuration(durationText);
+        const status = testEl.dataset.status;
+        return { title, duration: durationMs, durationText, status };
+    }); // Don't filter out 0ms tests
+    
+    // Sort by duration
+    const longest = [...testsWithDuration].sort((a, b) => b.duration - a.duration).slice(0, 5);
+    const fastest = [...testsWithDuration].sort((a, b) => a.duration - b.duration).slice(0, 5);
+    
+    // Render longest tests
+    const longestContainer = document.getElementById('longestTests');
+    if (longestContainer && longest.length > 0) {
+        longestContainer.innerHTML = longest.map((test, index) => `
+            <div class="performance-item">
+                <span class="performance-rank">${index + 1}</span>
+                <span class="performance-name" title="${test.title}">${test.title.length > 60 ? test.title.substring(0, 60) + '...' : test.title}</span>
+                <span class="performance-duration">${test.durationText}</span>
+            </div>
+        `).join('');
+    } else if (longestContainer) {
+        longestContainer.innerHTML = '<p style="color: #7f8c8d; padding: 1rem;">No test data available</p>';
+    }
+    
+    // Render fastest tests
+    const fastestContainer = document.getElementById('fastestTests');
+    if (fastestContainer && fastest.length > 0) {
+        fastestContainer.innerHTML = fastest.map((test, index) => `
+            <div class="performance-item">
+                <span class="performance-rank">${index + 1}</span>
+                <span class="performance-name" title="${test.title}">${test.title.length > 60 ? test.title.substring(0, 60) + '...' : test.title}</span>
+                <span class="performance-duration">${test.durationText}</span>
+            </div>
+        `).join('');
+    } else if (fastestContainer) {
+        fastestContainer.innerHTML = '<p style="color: #7f8c8d; padding: 1rem;">No test data available</p>';
+    }
+}
+
+// Render history timeline
+function renderHistoryTimeline() {
+    if (!window.testData || !window.testData.history || window.testData.history.length === 0) {
+        return;
+    }
+    
+    const history = window.testData.history.slice().reverse(); // Most recent last
+    
+    // Render stats
+    const statsContainer = document.getElementById('historyStats');
+    if (statsContainer) {
+        const totalRuns = history.length;
+        const avgDuration = history.reduce((sum, run) => sum + (run.duration || 0), 0) / totalRuns;
+        const avgTests = Math.round(history.reduce((sum, run) => sum + (run.stats.tests || 0), 0) / totalRuns);
+        const avgPassRate = history.reduce((sum, run) => {
+            const total = run.stats.tests || 0;
+            const passed = run.stats.passes || 0;
+            return sum + (total > 0 ? (passed / total) * 100 : 0);
+        }, 0) / totalRuns;
+        
+        statsContainer.innerHTML = `
+            <div class="history-stats-grid">
+                <div class="history-stat-item">
+                    <h4>Total Runs</h4>
+                    <div class="value">${totalRuns}</div>
+                </div>
+                <div class="history-stat-item">
+                    <h4>Avg Duration</h4>
+                    <div class="value">${formatDuration(avgDuration)}</div>
+                </div>
+                <div class="history-stat-item">
+                    <h4>Avg Tests</h4>
+                    <div class="value">${avgTests}</div>
+                </div>
+                <div class="history-stat-item">
+                    <h4>Avg Pass Rate</h4>
+                    <div class="value">${avgPassRate.toFixed(1)}%</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Render timeline
+    const timelineContainer = document.getElementById('historyTimeline');
+    if (timelineContainer) {
+        const recentHistory = history.slice(-10).reverse(); // Last 10 runs, most recent first
+        timelineContainer.innerHTML = '<h3 style="margin: 0 0 1rem 0; color: #2c3e50;">Recent Execution Timeline</h3>' +
+            recentHistory.map(run => {
+                const timestamp = new Date(run.timestamp);
+                const timeStr = timestamp.toLocaleString();
+                const total = run.stats.tests || 0;
+                const passed = run.stats.passes || 0;
+                const failed = run.stats.failures || 0;
+                const badgeClass = failed > 0 ? 'failure' : 'success';
+                const badgeText = failed > 0 ? `${failed} Failed` : `All Passed`;
+                
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-time">${timeStr}</div>
+                        <div class="timeline-result">
+                            <span class="timeline-badge ${badgeClass}">${badgeText}</span>
+                            <span>${passed}/${total} passed</span>
+                            <span>·</span>
+                            <span>${formatDuration(run.duration || 0)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+    }
+}
+
+// Helper to parse duration text to milliseconds
+function parseDuration(durationText) {
+    if (!durationText) return 0;
+    const match = durationText.match(/(\d+(?:\.\d+)?)(ms|s|m)/);
+    if (!match) return 0;
+    const value = parseFloat(match[1]);
+    const unit = match[2];
+    if (unit === 'ms') return value;
+    if (unit === 's') return value * 1000;
+    if (unit === 'm') return value * 60000;
+    return 0;
+}
+
+// Helper to format duration
+function formatDuration(ms) {
+    if (ms < 1000) return Math.round(ms) + 'ms';
+    if (ms < 60000) return (ms / 1000).toFixed(2) + 's';
+    return (ms / 60000).toFixed(2) + 'm';
+}
+    </script>
+</body>
+</html>
+    
