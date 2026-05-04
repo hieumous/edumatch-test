@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -32,6 +33,7 @@ public class CreateOpportunityRequest {
     // --- ------------------------- ---
 
     @NotNull(message = "Scholarship amount is required")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Scholarship amount must be non-negative")
     private BigDecimal scholarshipAmount; // MỚI: Tiền học bổng
 
     private BigDecimal minGpa;
